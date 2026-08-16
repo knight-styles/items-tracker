@@ -1,0 +1,100 @@
+{% extends "tracker/base.html" %}
+{% block title %}Settings - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Application Settings</h1>
+      <div class="page-subtitle">Configure reset intervals, highlight colors, and inventory alert thresholds</div>
+    </div>
+    <div>
+      <a href="{% url 'admin_audit_log' %}" class="btn btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        View Audit Log
+      </a>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:600px;">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="{{ form.period_days.id_for_label }}">{{ form.period_days.label }}</label>
+        {{ form.period_days }}
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">{{ form.period_days.help_text }}</div>
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.reset_mode.id_for_label }}">Reset Calculation Mode</label>
+        {{ form.reset_mode }}
+      </div>
+
+      <div class="form-group" id="reset-time-group">
+        <label for="{{ form.reset_time.id_for_label }}">{{ form.reset_time.label }}</label>
+        {{ form.reset_time }}
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">{{ form.reset_time.help_text }}</div>
+      </div>
+
+      <div class="form-group" id="reset-hours-group">
+        <label for="{{ form.reset_hours.id_for_label }}">{{ form.reset_hours.label }}</label>
+        {{ form.reset_hours }}
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">{{ form.reset_hours.help_text }}</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+        <div class="form-group">
+          <label for="{{ form.color_today.id_for_label }}">"Taken Today" Color</label>
+          {{ form.color_today }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.color_period.id_for_label }}">"Taken Within Period" Color</label>
+          {{ form.color_period }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.low_stock_threshold.id_for_label }}">{{ form.low_stock_threshold.label }}</label>
+        {{ form.low_stock_threshold }}
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">{{ form.low_stock_threshold.help_text }}</div>
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.bulk_issue_cooldown_days.id_for_label }}">Bulk Allotment Cooldown Interval (Days)</label>
+        {{ form.bulk_issue_cooldown_days }}
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">{{ form.bulk_issue_cooldown_days.help_text }}</div>
+      </div>
+
+      {% for field in form %}
+        {% if field.errors %}
+          <div class="alert alert-error">{{ field.label }}: {{ field.errors|striptags }}</div>
+        {% endif %}
+      {% endfor %}
+
+      <div style="margin-top:28px;">
+        <button type="submit" class="btn btn-primary" style="padding:11px 24px;">Save Settings Configuration</button>
+      </div>
+    </form>
+  </div>
+
+<script>
+(function() {
+  var modeField = document.getElementById('{{ form.reset_mode.id_for_label }}');
+  var timeGroup = document.getElementById('reset-time-group');
+  var hoursGroup = document.getElementById('reset-hours-group');
+
+  function syncVisibility() {
+    if (modeField.value === 'hours_after') {
+      timeGroup.style.display = 'none';
+      hoursGroup.style.display = '';
+    } else {
+      timeGroup.style.display = '';
+      hoursGroup.style.display = 'none';
+    }
+  }
+
+  modeField.addEventListener('change', syncVisibility);
+  syncVisibility();
+})();
+</script>
+{% endblock %}

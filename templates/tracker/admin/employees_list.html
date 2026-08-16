@@ -1,0 +1,91 @@
+{% extends "tracker/base.html" %}
+{% block title %}Employees - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Employee Directory</h1>
+      <div class="page-subtitle">Manage personnel accounts, status, and bulk operations</div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="{% url 'admin_employee_bulk_deactivate' %}" class="btn btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+        Bulk Deactivate
+      </a>
+      <a href="{% url 'admin_employee_import' %}" class="btn btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        Import CSV
+      </a>
+      <a href="{% url 'admin_employee_add' %}" class="btn btn-primary btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Add Employee
+      </a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <form method="get" style="display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap;">
+      <div class="form-group" style="margin-bottom:0; min-width:240px; flex:1;">
+        <label for="id_q">Search Employee (Name or Code)</label>
+        {{ form.q }}
+      </div>
+      <div class="form-group" style="margin-bottom:0; width:160px;">
+        <label for="id_status">Status</label>
+        {{ form.status }}
+      </div>
+      <button type="submit" class="btn btn-primary">Filter Directory</button>
+      <a href="{% url 'admin_employees' %}" class="btn">Reset</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee Name</th>
+            <th>Employee Code</th>
+            <th>Status</th>
+            <th>Last Updated</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for emp in employees %}
+          <tr>
+            <td class="font-bold">{{ emp.name }}</td>
+            <td><span class="badge badge-neutral">{{ emp.code }}</span></td>
+            <td>
+              {% if emp.is_active %}
+                <span class="badge badge-success">Active</span>
+              {% else %}
+                <span class="badge badge-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="text-muted" style="font-size:13px;">
+                {% if emp.updated_by %}{{ emp.updated_by.username }}{% else %}{{ emp.created_by.username|default:"—" }}{% endif %}
+                on {{ emp.updated_at|date:"d M Y, H:i" }}
+              </span>
+            </td>
+            <td style="text-align:right; white-space:nowrap;">
+              <div style="display:inline-flex; gap:6px;">
+                <a href="{% url 'admin_employee_edit' emp.pk %}" class="btn btn-sm">Edit</a>
+                <form method="post" action="{% url 'admin_employee_toggle_active' emp.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm">{% if emp.is_active %}Deactivate{% else %}Activate{% endif %}</button>
+                </form>
+                <form method="post" action="{% url 'admin_employee_delete' emp.pk %}" style="display:inline;" onsubmit="return confirm('Delete {{ emp.name }}? This cannot be undone.');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-muted" style="text-align:center; padding:32px;">No employees match the specified criteria.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

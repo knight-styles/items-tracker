@@ -1,0 +1,338 @@
+{% extends "tracker/base.html" %}
+{% block title %}Reports - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div class="page-header-row" style="margin-bottom:16px;">
+    <div>
+      <h1 class="page-title">Analytics and reports</h1>
+    </div>
+    <div>
+      <button type="button" class="btn btn-success" id="open-export-modal-btn">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Switch Buttons: "By Employee" "Stock History" -->
+  <div style="display:flex; gap:10px; margin-bottom:20px;">
+    <a href="{% url 'reports' %}?type=employee" class="btn {% if report_type == 'employee' %}btn-primary{% else %}btn-secondary{% endif %}">
+      By Employee
+    </a>
+    <a href="{% url 'reports' %}?type=stock" class="btn {% if report_type == 'stock' %}btn-primary{% else %}btn-secondary{% endif %}">
+      Stock History
+    </a>
+  </div>
+
+  {% if report_type == 'employee' %}
+    <!-- Quick Date Presets and Month Filter -->
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; max-width:500px;">
+      <a href="{% url 'reports' %}?type=employee&period=this_week" class="btn btn-sm {% if period == 'this_week' %}btn-primary{% else %}btn-secondary{% endif %}">
+        This Week
+      </a>
+      <a href="{% url 'reports' %}?type=employee&period=this_month" class="btn btn-sm {% if period == 'this_month' %}btn-primary{% else %}btn-secondary{% endif %}">
+        Current Month
+      </a>
+      <select name="period" id="month-period-select" class="btn btn-sm btn-secondary" style="padding:6px 12px; cursor:pointer; flex:1; min-width:180px; max-width:500px;" onchange="location.href='{% url 'reports' %}?type=employee&period=' + this.value">
+        {% for val, label in month_choices %}
+          <option value="{{ val }}" {% if period == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Search bar with embedded search icon -->
+    <div style="margin-bottom:12px; max-width:500px;">
+      <form method="get" id="reports-filter-form">
+        <input type="hidden" name="type" value="employee">
+        {% if period %}
+          <input type="hidden" name="period" value="{{ period }}">
+        {% endif %}
+        <div style="position:relative;">
+          <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--color-text-muted); pointer-events:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="text" name="q" id="search-input" value="{{ form.q.value|default:'' }}" placeholder="Search employee name or code..." style="padding-left:38px;">
+        </div>
+      </form>
+    </div>
+
+    <!-- Small text metadata -->
+    <div class="text-muted" style="font-size:13px; margin-bottom:16px;">
+      Total Employees - <strong>{{ total_employees_count }}</strong> &nbsp;&bull;&nbsp; Search result - <strong>{{ result_count }}</strong>
+    </div>
+
+    {% if is_fuzzy_match %}
+      <div style="margin-bottom:16px; padding:10px 14px; background:rgba(79,70,229,0.08); border:1px solid var(--color-primary-border); border-radius:var(--radius-md); font-size:13px; color:var(--color-text);">
+        <svg style="width:16px; height:16px; display:inline; margin-right:6px; vertical-align:-3px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        No exact matches found. Showing similar results for <strong>"{{ form.q.value }}"</strong>.
+      </div>
+    {% endif %}
+
+    <!-- Employee Summary Table -->
+    <div class="card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee Name</th>
+              <th>Code</th>
+              <th>Status</th>
+              <th>Today</th>
+              <th>This Week</th>
+              <th>This Month</th>
+              {% if has_custom_period %}
+                <th>Filtered Range Total</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for emp in results %}
+            <tr>
+              <td>
+                <a href="{% url 'reports_employee_detail' emp.pk %}" class="font-bold" style="font-size:15px;">
+                  {{ emp.name }}
+                </a>
+              </td>
+              <td class="text-muted">{{ emp.code }}</td>
+              <td>
+                {% if emp.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-danger">Inactive</span>
+                {% endif %}
+              </td>
+              <td>{{ emp.count_today }}</td>
+              <td>{{ emp.count_week }}</td>
+              <td>{{ emp.count_month }}</td>
+              {% if has_custom_period %}
+                <td class="font-bold" style="color:var(--color-primary);">{{ emp.count_period }}</td>
+              {% endif %}
+            </tr>
+            {% empty %}
+            <tr><td colspan="{% if has_custom_period %}7{% else %}6{% endif %}" class="text-muted" style="text-align:center; padding:32px;">No employees match these filters.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="text-muted" style="font-size:12px; margin-top:12px;">Click an employee's name to view their complete item assignment history.</div>
+
+  {% elif report_type == 'stock' %}
+    <!-- Quick Date Presets: "This Week" "Current Month" [Select Month] for Stock History -->
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; max-width:500px;">
+      <a href="{% url 'reports' %}?type=stock&period=this_week{% if form.item.value %}&item={{ form.item.value }}{% endif %}" class="btn btn-sm {% if period == 'this_week' %}btn-primary{% else %}btn-secondary{% endif %}">
+        This Week
+      </a>
+      <a href="{% url 'reports' %}?type=stock&period=this_month{% if form.item.value %}&item={{ form.item.value }}{% endif %}" class="btn btn-sm {% if period == 'this_month' %}btn-primary{% else %}btn-secondary{% endif %}">
+        Current Month
+      </a>
+      <select name="period" id="stock-month-period-select" class="btn btn-sm btn-secondary" style="padding:6px 12px; cursor:pointer; flex:1; min-width:180px; max-width:500px;" onchange="location.href='{% url 'reports' %}?type=stock&period=' + this.value + '{% if form.item.value %}&item={{ form.item.value }}{% endif %}'">
+        {% for val, label in month_choices %}
+          <option value="{{ val }}" {% if period == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Item Selection Dropdown -->
+    <div style="margin-bottom:12px; max-width:500px;">
+      <form method="get" id="stock-item-form">
+        <input type="hidden" name="type" value="stock">
+        {% if period %}
+          <input type="hidden" name="period" value="{{ period }}">
+        {% endif %}
+        <div class="form-group" style="margin-bottom:0;">
+          {{ form.item }}
+        </div>
+      </form>
+    </div>
+
+    <!-- Small text metadata -->
+    <div class="text-muted" style="font-size:13px; margin-bottom:16px;">
+      Total Items - <strong>{{ total_items_count }}</strong> &nbsp;&bull;&nbsp; Stock Updates - <strong>{{ result_count }}</strong>
+    </div>
+
+    <!-- Stock History Table -->
+    <div class="card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Safety Item</th>
+              <th>Quantity Added</th>
+              <th>Updated By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for su in results %}
+            <tr>
+              <td class="font-semibold">{{ su.updated_at|date:"d M Y, H:i" }}</td>
+              <td><span class="badge badge-neutral">{{ su.item.name }}</span></td>
+              <td class="font-bold" style="color:var(--color-success-hover);">+{{ su.quantity_added }}</td>
+              <td><span class="badge badge-role">{{ su.updated_by.username|default:"—" }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted" style="text-align:center; padding:32px;">No stock updates match these filters.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {% else %}
+    <!-- Usage Log Fallback for Tests -->
+    <div class="card" style="margin-bottom:20px;">
+      <form method="get">
+        <input type="hidden" name="type" value="usage">
+        <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
+          <div class="form-group" style="margin-bottom:0; min-width:200px; flex:1;">
+            <label for="{{ form.employee.id_for_label }}">Employee</label>
+            {{ form.employee }}
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Employee Name</th>
+              <th>Code</th>
+              <th>Safety Item</th>
+              <th>Qty</th>
+              <th>Logged By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in results %}
+            <tr>
+              <td class="font-semibold">{{ log.logged_at|date:"d M Y, H:i" }}</td>
+              <td class="font-semibold">{{ log.employee.name }}</td>
+              <td class="text-muted">{{ log.employee.code }}</td>
+              <td><span class="badge badge-neutral">{{ log.item.name }}</span></td>
+              <td class="font-bold">{{ log.quantity }}</td>
+              <td><span class="badge badge-role">{{ log.logged_by.username|default:"—" }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-muted" style="text-align:center; padding:32px;">No usage logs match these filters.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <div style="margin-top:20px; display:flex; gap:12px; align-items:center; justify-content:center;">
+      {% if page_obj.has_previous %}
+        <a href="?{{ base_qs }}&page={{ page_obj.previous_page_number }}" class="btn btn-sm">&laquo; Previous</a>
+      {% endif %}
+      <span class="text-muted" style="font-size:13px; font-weight:600;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?{{ base_qs }}&page={{ page_obj.next_page_number }}" class="btn btn-sm">Next &raquo;</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- Export Settings & Preview Dialog Modal -->
+  <dialog id="export-dialog">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--color-border);">
+      <h3 style="margin:0; font-size:18px; font-weight:800; display:flex; align-items:center; gap:8px;">
+        <svg style="width:20px; height:20px; color:var(--color-success-hover);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        Export Settings &amp; Preview
+      </h3>
+    </div>
+
+    <!-- Export Summary Card -->
+    <div style="background:var(--color-bg); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:14px; margin-bottom:20px;">
+      <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:6px;">Export Scope Preview</div>
+      <div style="display:flex; flex-direction:column; gap:6px; font-size:14px;">
+        <div>Export Report: <strong>{% if report_type == 'stock' %}Stock History Updates{% else %}Employee Equipment Summary{% endif %}</strong></div>
+        <div>Matching Records: <strong>{{ result_count }} record(s)</strong></div>
+        <div>Selected Period: <strong>{% if date_from or date_to %}{{ date_from|default:"Beginning" }} to {{ date_to|default:"Today" }}{% else %}All Time History{% endif %}</strong></div>
+      </div>
+    </div>
+
+    <!-- Export Format Selector Form -->
+    <div class="form-group">
+      <label for="export-format">Select File Format</label>
+      <select id="export-format">
+        <option value="xlsx">Excel Workbook (.xlsx)</option>
+        <option value="csv">CSV Spreadsheet (.csv)</option>
+      </select>
+    </div>
+
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:24px;">
+      <button type="button" class="btn" id="cancel-export-btn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="start-export-btn">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        Download Export
+      </button>
+    </div>
+  </dialog>
+
+<script>
+(function() {
+  const exportModal = document.getElementById('export-dialog');
+  const openModalBtn = document.getElementById('open-export-modal-btn');
+  const cancelModalBtn = document.getElementById('cancel-export-btn');
+  const startExportBtn = document.getElementById('start-export-btn');
+  const formatSelect = document.getElementById('export-format');
+  const searchInput = document.getElementById('search-input');
+  const stockItemSelect = document.querySelector('#stock-item-form select');
+
+  if (openModalBtn && exportModal) {
+    openModalBtn.addEventListener('click', () => exportModal.showModal());
+  }
+
+  if (cancelModalBtn && exportModal) {
+    cancelModalBtn.addEventListener('click', () => exportModal.close());
+  }
+
+  if (startExportBtn) {
+    startExportBtn.addEventListener('click', () => {
+      const format = formatSelect.value;
+      const baseUrl = format === 'xlsx' ? '{% url "reports_export_xlsx" %}' : '{% url "reports_export_csv" %}';
+      const url = baseUrl + '?' + '{{ base_qs|escapejs }}';
+      window.location.href = url;
+      exportModal.close();
+    });
+  }
+
+  if (searchInput) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('q') && urlParams.get('q').trim() !== '' || sessionStorage.getItem('reports_search_focused') === 'true') {
+      sessionStorage.removeItem('reports_search_focused');
+      searchInput.focus();
+      const valLen = searchInput.value.length;
+      searchInput.setSelectionRange(valLen, valLen);
+    }
+
+    let searchTimer = null;
+    searchInput.addEventListener('input', () => {
+      sessionStorage.setItem('reports_search_focused', 'true');
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        document.getElementById('reports-filter-form').submit();
+      }, 500);
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sessionStorage.setItem('reports_search_focused', 'true');
+        document.getElementById('reports-filter-form').submit();
+      }
+    });
+  }
+
+  if (stockItemSelect) {
+    stockItemSelect.addEventListener('change', () => {
+      document.getElementById('stock-item-form').submit();
+    });
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "tracker/base.html" %}
+{% block title %}Stock Control - Safety Item Tracker{% endblock %}
+
+{% block content %}
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Stock Control & Management</h1>
+      <div class="page-subtitle">View active inventory and add incoming stock</div>
+    </div>
+    <div>
+      <a href="{% url 'reports' %}?type=stock" class="btn btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        View Stock History
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:60px;">#</th>
+            <th>Item Name</th>
+            <th>Current Stock</th>
+            <th>Status</th>
+            <th style="text-align:right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr {% if item.current_stock <= low_stock_threshold %}style="background: var(--color-danger-light);"{% endif %}>
+            <td class="text-muted">{{ forloop.counter }}</td>
+            <td class="font-bold">{{ item.name }}</td>
+            <td>
+              <span class="font-bold" style="font-size:16px;">{{ item.current_stock }}</span>
+            </td>
+            <td>
+              {% if item.current_stock <= low_stock_threshold %}
+                <span class="badge badge-danger">Low Stock (&le; {{ low_stock_threshold }})</span>
+              {% else %}
+                <span class="badge badge-success">In Stock</span>
+              {% endif %}
+            </td>
+            <td style="text-align:right;">
+              <button type="button" class="btn btn-sm btn-primary open-stock-dialog"
+                      data-item-name="{{ item.name }}"
+                      data-url="{% url 'supervisor_stock_update' item.pk %}">
+                + Add Stock
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-muted" style="text-align:center; padding:32px;">No safety items available.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <dialog id="stock-dialog">
+    <form method="post" id="stock-update-form">
+      {% csrf_token %}
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:18px; font-weight:700;">Add Stock</h3>
+        <span class="badge badge-role" id="dialog-item-name"></span>
+      </div>
+      <div class="form-group">
+        <label for="id_quantity_added">Quantity to Add</label>
+        <input type="number" name="quantity_added" id="id_quantity_added" min="1" placeholder="Enter positive quantity..." required>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:24px;">
+        <button type="button" class="btn" id="stock-dialog-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Addition</button>
+      </div>
+    </form>
+  </dialog>
+
+<script>
+(function() {
+  const dialog = document.getElementById('stock-dialog');
+  const form = document.getElementById('stock-update-form');
+  const nameSpan = document.getElementById('dialog-item-name');
+  const qtyInput = document.getElementById('id_quantity_added');
+
+  document.querySelectorAll('.open-stock-dialog').forEach(btn => {
+    btn.addEventListener('click', () => {
+      form.action = btn.dataset.url;
+      nameSpan.textContent = btn.dataset.itemName;
+      qtyInput.value = '';
+      dialog.showModal();
+      qtyInput.focus();
+    });
+  });
+
+  document.getElementById('stock-dialog-cancel').addEventListener('click', () => dialog.close());
+})();
+</script>
+{% endblock %}

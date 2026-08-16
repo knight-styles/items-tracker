@@ -1,0 +1,79 @@
+{% extends "tracker/base.html" %}
+{% block title %}Bulk Deactivate Employees - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div style="margin-bottom:20px;">
+    <a href="{% url 'admin_employees' %}" class="btn btn-sm">
+      &laquo; Back to Directory
+    </a>
+  </div>
+
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Bulk Deactivate Employees</h1>
+      <div class="page-subtitle">Batch deactivate multiple employees by uploading a list of codes</div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:600px; margin-bottom:20px;">
+    <div class="card-header" style="margin-bottom:16px; padding-bottom:8px;">
+      <h2 class="card-title">
+        <svg style="width:20px; height:20px; color:var(--color-danger);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        Bulk Deactivation Instructions
+      </h2>
+    </div>
+
+    <p style="margin-top:0;">Upload a CSV file containing a single column header named <code class="font-bold">code</code> with the employee codes to deactivate:</p>
+    <pre style="background:var(--color-bg); padding:12px 16px; border:1px solid var(--color-border); border-radius:var(--radius-md); overflow-x:auto; font-size:13px; margin-bottom:12px; font-family:monospace;">code
+EMP-101
+EMP-102</pre>
+    <p class="text-muted" style="font-size:12px; margin-bottom:20px;">
+      Matching employee records will be marked inactive without deleting historical log entries.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.csv_file.id_for_label }}">{{ form.csv_file.label }}</label>
+        {{ form.csv_file }}
+        {% if form.csv_file.errors %}
+          <div class="alert alert-error" style="margin-top:8px;">{{ form.csv_file.errors|striptags }}</div>
+        {% endif %}
+      </div>
+      <div style="display:flex; gap:10px; margin-top:24px;">
+        <button type="submit" class="btn btn-danger">Upload &amp; Bulk Deactivate</button>
+        <a href="{% url 'admin_employees' %}" class="btn">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  {% if result %}
+  <div class="card" style="max-width:600px;">
+    <div class="card-header" style="margin-bottom:16px; padding-bottom:8px;">
+      <h2 class="card-title">Deactivation Summary</h2>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:16px;">
+      <div style="background:var(--color-danger-light); border:1px solid var(--color-danger-border); padding:12px; border-radius:var(--radius-md); text-align:center;">
+        <div class="text-muted" style="font-size:11px; text-transform:uppercase;">Deactivated</div>
+        <div style="font-size:20px; font-weight:800; color:var(--color-danger-hover);">{{ result.deactivated }}</div>
+      </div>
+      <div style="background:var(--color-bg); border:1px solid var(--color-border); padding:12px; border-radius:var(--radius-md); text-align:center;">
+        <div class="text-muted" style="font-size:11px; text-transform:uppercase;">Already Inactive</div>
+        <div style="font-size:20px; font-weight:800; color:var(--color-text);">{{ result.already_inactive }}</div>
+      </div>
+      <div style="background:var(--color-warning-light); border:1px solid var(--color-warning-border); padding:12px; border-radius:var(--radius-md); text-align:center;">
+        <div class="text-muted" style="font-size:11px; text-transform:uppercase;">Not Found</div>
+        <div style="font-size:20px; font-weight:800; color:var(--color-warning-hover);">{{ result.not_found }}</div>
+      </div>
+    </div>
+
+    {% if result.errors %}
+      <div class="alert alert-error" style="margin-top:16px;">
+        <strong>{{ result.errors|length }} row issue(s):</strong>
+        <ul style="margin:6px 0 0 18px;">
+          {% for err in result.errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}

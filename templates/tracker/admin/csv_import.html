@@ -1,0 +1,86 @@
+{% extends "tracker/base.html" %}
+{% block title %}{{ title }} - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div style="margin-bottom:20px;">
+    <a href="{% url back_url_name %}" class="btn btn-sm">
+      &laquo; Back
+    </a>
+  </div>
+
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">{{ title }}</h1>
+      <div class="page-subtitle">Batch import data using CSV file upload</div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:600px; margin-bottom:20px;">
+    <div class="card-header" style="margin-bottom:16px; padding-bottom:8px;">
+      <h2 class="card-title">
+        <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        File Format Instructions
+      </h2>
+    </div>
+
+    <p style="margin-top:0;">Upload a standard CSV file with the following column headers:</p>
+    <ul style="padding-left:20px; margin-bottom:16px;">
+      {% for line in format_instructions %}<li style="margin-bottom:4px;" class="font-semibold">{{ line }}</li>{% endfor %}
+    </ul>
+    
+    <label>Sample Data Preview</label>
+    <pre style="background:var(--color-bg); padding:12px 16px; border:1px solid var(--color-border); border-radius:var(--radius-md); overflow-x:auto; font-size:13px; margin-bottom:12px; font-family:monospace;">{{ example }}</pre>
+    <p class="text-muted" style="font-size:12px; margin-bottom:20px;">{{ note }}</p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.csv_file.id_for_label }}">{{ form.csv_file.label }}</label>
+        {{ form.csv_file }}
+        {% if form.csv_file.errors %}
+          <div class="alert alert-error" style="margin-top:8px;">{{ form.csv_file.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:24px;">
+        <button type="submit" class="btn btn-primary">
+          <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          Upload &amp; Process CSV
+        </button>
+        <a href="{% url back_url_name %}" class="btn">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  {% if result %}
+  <div class="card" style="max-width:600px;">
+    <div class="card-header" style="margin-bottom:16px; padding-bottom:8px;">
+      <h2 class="card-title">Import Execution Results</h2>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:16px;">
+      <div style="background:var(--color-success-light); border:1px solid var(--color-success-border); padding:12px; border-radius:var(--radius-md); text-align:center;">
+        <div class="text-muted" style="font-size:11px; text-transform:uppercase;">Created</div>
+        <div style="font-size:20px; font-weight:800; color:var(--color-success-hover);">{{ result.created }}</div>
+      </div>
+      <div style="background:var(--color-primary-light); border:1px solid var(--color-primary-border); padding:12px; border-radius:var(--radius-md); text-align:center;">
+        <div class="text-muted" style="font-size:11px; text-transform:uppercase;">Updated</div>
+        <div style="font-size:20px; font-weight:800; color:var(--color-primary-hover);">{{ result.updated }}</div>
+      </div>
+      <div style="background:var(--color-bg); border:1px solid var(--color-border); padding:12px; border-radius:var(--radius-md); text-align:center;">
+        <div class="text-muted" style="font-size:11px; text-transform:uppercase;">Skipped</div>
+        <div style="font-size:20px; font-weight:800; color:var(--color-text);">{{ result.skipped }}</div>
+      </div>
+    </div>
+
+    {% if result.errors %}
+      <div class="alert alert-error">
+        <div>
+          <strong>{{ result.errors|length }} row issue(s) detected:</strong>
+          <ul style="margin:8px 0 0 18px;">
+            {% for err in result.errors %}<li>{{ err }}</li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "tracker/base.html" %}
+{% block title %}Audit Log - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div style="margin-bottom:20px;">
+    <a href="{% url 'admin_settings' %}" class="btn btn-sm">
+      &laquo; Back to Settings
+    </a>
+  </div>
+
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">System Audit Log</h1>
+      <div class="page-subtitle">Chronological audit trail of system operations, administrative actions, and security events</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <form method="get" style="display:flex; gap:14px; align-items:flex-end;">
+      <div class="form-group" style="margin-bottom:0; min-width:240px;">
+        <label for="action-filter">Filter by Action Type</label>
+        <select name="action" id="action-filter">
+          <option value="">All system actions</option>
+          {% for choice in action_choices %}
+            <option value="{{ choice }}" {% if choice == action_filter %}selected{% endif %}>{{ choice }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Filter Audit Log</button>
+      <a href="{% url 'admin_audit_log' %}" class="btn">Reset</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Actor</th>
+            <th>Action</th>
+            <th>Target Entity</th>
+            <th>Details / Change Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in results %}
+          <tr>
+            <td class="font-semibold">{{ entry.created_at|date:"d M Y, H:i" }}</td>
+            <td><span class="badge badge-role">{{ entry.actor.username|default:"—" }}</span></td>
+            <td>
+              {% if 'delete' in entry.action|lower or 'deactivate' in entry.action|lower %}
+                <span class="badge badge-danger">{{ entry.action }}</span>
+              {% elif 'password' in entry.action|lower or 'reset' in entry.action|lower %}
+                <span class="badge badge-warning">{{ entry.action }}</span>
+              {% else %}
+                <span class="badge badge-neutral">{{ entry.action }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="font-bold">{{ entry.target_type }}</span>: {{ entry.target_repr }}
+            </td>
+            <td class="text-muted" style="font-size:13px;">{{ entry.details|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-muted" style="text-align:center; padding:32px;">No audit entries found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <div style="margin-top:20px; display:flex; gap:12px; align-items:center; justify-content:center;">
+      {% if page_obj.has_previous %}
+        <a href="?action={{ action_filter }}&page={{ page_obj.previous_page_number }}" class="btn btn-sm">&laquo; Previous</a>
+      {% endif %}
+      <span class="text-muted" style="font-size:13px; font-weight:600;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?action={{ action_filter }}&page={{ page_obj.next_page_number }}" class="btn btn-sm">Next &raquo;</a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

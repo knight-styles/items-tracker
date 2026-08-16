@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Safety Item Tracker{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="app-layout">
+  {% if request.user.is_authenticated %}
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-nav-section">
+        <div class="nav-group-label">Navigation</div>
+        <nav>
+          {% if request.user.is_admin %}
+            <a href="{% url 'admin_dashboard' %}" class="{% if active_nav == 'dashboard' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+              <span>Dashboard</span>
+            </a>
+            <a href="{% url 'admin_employees' %}" class="{% if active_nav == 'employees' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+              <span>Employees</span>
+            </a>
+            <a href="{% url 'admin_items' %}" class="{% if active_nav == 'items' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+              <span>Items</span>
+            </a>
+            <a href="{% url 'admin_users' %}" class="{% if active_nav == 'users' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span>Users</span>
+            </a>
+            <a href="{% url 'reports' %}" class="{% if active_nav == 'reports' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span>Reports</span>
+            </a>
+            <a href="{% url 'admin_settings' %}" class="{% if active_nav == 'settings' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <span>Settings</span>
+            </a>
+          {% else %}
+            <a href="{% url 'supervisor_log' %}" class="{% if active_nav == 'log' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              <span>Log Usage</span>
+            </a>
+            <a href="{% url 'supervisor_add_employee' %}" class="{% if active_nav == 'add_employee' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+              <span>Add Employee</span>
+            </a>
+            <a href="{% url 'reports' %}" class="{% if active_nav == 'reports' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span>Reports</span>
+            </a>
+            <a href="{% url 'supervisor_stock' %}" class="{% if active_nav == 'stock' %}active{% endif %}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+              <span>Stock Control</span>
+            </a>
+          {% endif %}
+        </nav>
+      </div>
+
+      <!-- Sidebar Footer: User Details & Logout Button at VERY Bottom -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user-pill">
+          <div class="avatar-circle">
+            {{ request.user.username|slice:":1"|upper }}
+          </div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+            <span class="sidebar-user-role">{% if request.user.is_admin %}Admin{% else %}Supervisor{% endif %}</span>
+          </div>
+        </div>
+
+        <form method="post" action="{% url 'logout' %}" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="sidebar-logout-btn">
+            <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <span>Logout</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </aside>
+  {% endif %}
+
+  <div class="main-wrapper {% if not request.user.is_authenticated %}no-sidebar{% endif %}">
+    <header class="app-header">
+      <div class="brand-wrapper">
+        {% if request.user.is_authenticated %}
+        <!-- Mobile Navigation Drawer Hamburger Toggle (Hidden on Desktop) -->
+        <button class="mobile-menu-toggle" id="sidebarToggle" aria-label="Toggle Navigation Menu">
+          <svg style="width:22px; height:22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+        {% endif %}
+        <div class="brand-logo">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+        </div>
+        <span class="brand-title">Safety Tracker</span>
+      </div>
+
+      {% if request.user.is_authenticated %}
+      <!-- Top Right Header User Profile Pill -->
+      <div class="header-user-nav">
+        <div class="user-profile-pill">
+          <div class="avatar-circle">
+            {{ request.user.username|slice:":1"|upper }}
+          </div>
+          <div class="user-details">
+            <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+          </div>
+          <span class="badge badge-role">{% if request.user.is_admin %}Admin{% else %}Supervisor{% endif %}</span>
+        </div>
+      </div>
+      {% endif %}
+    </header>
+
+    <main class="main-content">
+      {% if messages %}
+        <div class="alert-container">
+          {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+              {% if message.tags == 'error' %}
+                <svg style="width:20px; height:20px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              {% elif message.tags == 'success' %}
+                <svg style="width:20px; height:20px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              {% else %}
+                <svg style="width:20px; height:20px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              {% endif %}
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">
+      <span>Safety Item Tracker &bull; Enterprise Operations Management</span>
+    </footer>
+  </div>
+</div>
+
+<script>
+(function() {
+  const sidebar = document.getElementById('appSidebar');
+  const toggleBtn = document.getElementById('sidebarToggle');
+  const backdrop = document.getElementById('sidebarBackdrop');
+
+  if (toggleBtn && sidebar && backdrop) {
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      backdrop.classList.toggle('active');
+    });
+
+    backdrop.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('active');
+    });
+  }
+
+  // Universal Ascending / Descending Table Column Sorter
+  function initTableSorting() {
+    const tables = document.querySelectorAll('table:not(.no-sort)');
+    
+    tables.forEach(table => {
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      if (!thead || !tbody) return;
+
+      const headers = thead.querySelectorAll('tr:first-child th');
+      
+      headers.forEach((th, colIndex) => {
+        if (th.classList.contains('no-sort') || th.dataset.sort === 'disabled') return;
+        
+        th.classList.add('sortable');
+        
+        if (!th.querySelector('.sort-indicator')) {
+          const indicator = document.createElement('span');
+          indicator.className = 'sort-indicator';
+          indicator.innerHTML = '<svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>';
+          th.appendChild(indicator);
+        }
+
+        th.addEventListener('click', (e) => {
+          // Ignore clicks inside form controls/buttons inside th
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'A') return;
+
+          const currentDir = th.dataset.sortDir || 'none';
+          const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+          
+          headers.forEach(otherTh => {
+            if (otherTh !== th) {
+              otherTh.dataset.sortDir = 'none';
+              otherTh.classList.remove('sort-asc', 'sort-desc');
+            }
+          });
+
+          th.dataset.sortDir = newDir;
+          th.classList.remove('sort-asc', 'sort-desc');
+          th.classList.add(newDir === 'asc' ? 'sort-asc' : 'sort-desc');
+
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+          
+          rows.sort((rowA, rowB) => {
+            const cellA = rowA.children[colIndex];
+            const cellB = rowB.children[colIndex];
+            if (!cellA || !cellB) return 0;
+
+            let valA = (cellA.getAttribute('data-sort-value') || cellA.textContent).trim();
+            let valB = (cellB.getAttribute('data-sort-value') || cellB.textContent).trim();
+
+            const cleanNumA = valA.replace(/[^0-9.-]+/g, "");
+            const cleanNumB = valB.replace(/[^0-9.-]+/g, "");
+
+            const isNumA = cleanNumA !== "" && !isNaN(cleanNumA);
+            const isNumB = cleanNumB !== "" && !isNaN(cleanNumB);
+
+            if (isNumA && isNumB) {
+              const numA = parseFloat(cleanNumA);
+              const numB = parseFloat(cleanNumB);
+              return newDir === 'asc' ? numA - numB : numB - numA;
+            }
+
+            return newDir === 'asc' 
+              ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' })
+              : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+          });
+
+          rows.forEach(row => tbody.appendChild(row));
+        });
+      });
+    });
+  }
+
+  initTableSorting();
+})();
+</script>
+</body>
+</html>

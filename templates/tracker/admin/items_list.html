@@ -1,0 +1,92 @@
+{% extends "tracker/base.html" %}
+{% block title %}Items - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Safety Items Catalog</h1>
+      <div class="page-subtitle">Manage trackable safety equipment items and inventory thresholds</div>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <a href="{% url 'admin_item_import' %}" class="btn btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        Import CSV
+      </a>
+      <a href="{% url 'admin_item_add' %}" class="btn btn-primary btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Add Item
+      </a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <form method="get" style="display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap;">
+      <div class="form-group" style="margin-bottom:0; min-width:240px; flex:1;">
+        <label for="id_q">Search Item Name</label>
+        {{ form.q }}
+      </div>
+      <div class="form-group" style="margin-bottom:0; width:160px;">
+        <label for="id_status">Status</label>
+        {{ form.status }}
+      </div>
+      <button type="submit" class="btn btn-primary">Filter Catalog</button>
+      <a href="{% url 'admin_items' %}" class="btn">Reset</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Current Stock</th>
+            <th>Status</th>
+            <th>Last Updated</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr {% if item.current_stock <= low_stock_threshold %}style="background: var(--color-danger-light);"{% endif %}>
+            <td class="font-bold">{{ item.name }}</td>
+            <td>
+              <span class="font-bold" style="font-size:15px;">{{ item.current_stock }}</span>
+              {% if item.current_stock <= low_stock_threshold %}
+                <span class="badge badge-danger" style="margin-left:6px;">Low Stock (low)</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.is_active %}
+                <span class="badge badge-success">Active</span>
+              {% else %}
+                <span class="badge badge-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="text-muted" style="font-size:13px;">
+                {% if item.updated_by %}{{ item.updated_by.username }}{% else %}{{ item.created_by.username|default:"—" }}{% endif %}
+                on {{ item.updated_at|date:"d M Y, H:i" }}
+              </span>
+            </td>
+            <td style="text-align:right; white-space:nowrap;">
+              <div style="display:inline-flex; gap:6px;">
+                <a href="{% url 'admin_item_edit' item.pk %}" class="btn btn-sm">Edit</a>
+                <form method="post" action="{% url 'admin_item_toggle_active' item.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm">{% if item.is_active %}Deactivate{% else %}Activate{% endif %}</button>
+                </form>
+                <form method="post" action="{% url 'admin_item_delete' item.pk %}" style="display:inline;" onsubmit="return confirm('Delete {{ item.name }}? This cannot be undone.');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-muted" style="text-align:center; padding:32px;">No items match the specified criteria.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

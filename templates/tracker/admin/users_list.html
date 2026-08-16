@@ -1,0 +1,67 @@
+{% extends "tracker/base.html" %}
+{% block title %}Users - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Supervisor Management</h1>
+      <div class="page-subtitle">Create, configure, and manage Supervisor accounts</div>
+    </div>
+    <div>
+      <a href="{% url 'admin_user_add' %}" class="btn btn-primary btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+        Add Supervisor
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th>Date Joined</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td class="font-bold">{{ u.username }}</td>
+            <td class="font-semibold">{{ u.get_full_name|default:"—" }}</td>
+            <td>
+              {% if u.is_active %}
+                <span class="badge badge-success">Active</span>
+              {% else %}
+                <span class="badge badge-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td><span class="badge badge-role">{{ u.created_by.username|default:"—" }}</span></td>
+            <td class="text-muted" style="font-size:13px;">{{ u.date_joined|date:"d M Y, H:i" }}</td>
+            <td style="text-align:right; white-space:nowrap;">
+              <div style="display:inline-flex; gap:6px;">
+                <a href="{% url 'admin_user_edit' u.pk %}" class="btn btn-sm">Edit</a>
+                <a href="{% url 'admin_user_reset_password' u.pk %}" class="btn btn-sm">Reset Password</a>
+                <form method="post" action="{% url 'admin_user_toggle_active' u.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm">{% if u.is_active %}Deactivate{% else %}Activate{% endif %}</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-muted" style="text-align:center; padding:32px;">No supervisor accounts created yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="text-muted" style="margin-top:16px; font-size:12px; display:flex; align-items:center; gap:6px;">
+    <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <span>Deactivating a supervisor blocks their login immediately while preserving historical logs. Admin accounts are managed via Django's default admin interface.</span>
+  </div>
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends "tracker/base.html" %}
+{% block title %}Log Equipment Usage - Safety Item Tracker{% endblock %}
+
+{% block extra_head %}
+<style>
+  .search-wrapper { position: relative; max-width: 480px; }
+  .search-results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+    box-shadow: var(--shadow-xl);
+  }
+  .search-results div {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 1px solid var(--color-border);
+    transition: background var(--transition-fast);
+  }
+  .search-results div:last-child { border-bottom: none; }
+  .search-results div:hover { background: var(--color-primary-light); color: var(--color-primary-hover); }
+  .search-results .no-results { color: var(--color-text-muted); cursor: default; }
+  .search-results .no-results:hover { background: transparent; }
+  
+  .selected-employee-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-md);
+  }
+  .item-row { max-width: 480px; margin-bottom: 12px; }
+  #items-card.disabled { opacity: 0.45; pointer-events: none; }
+  .color-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Log Equipment Usage</h1>
+      <div class="page-subtitle">Select an employee and record safety equipment issued today</div>
+    </div>
+    <div>
+      {% if is_bulk_disabled %}
+        <button type="button" class="btn btn-secondary btn-sm" disabled style="opacity:0.65; cursor:not-allowed;" title="Bulk Allotment completed on {{ app_settings.last_bulk_issue_at|date:'d M Y' }}. Next allotment available in {{ remaining_days }} days.">
+          <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          Bulk Allotment Cooldown Active ({{ remaining_days }}d)
+        </button>
+      {% else %}
+        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('bulk-allocate-dialog').showModal();">
+          <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          Bulk Issue Periodic Safety Kit
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Bulk Allocation Confirmation Dialog Modal -->
+  <dialog id="bulk-allocate-dialog" style="border:none; border-radius:var(--radius-lg); padding:24px; max-width:480px; width:90%; box-shadow:var(--shadow-xl); background:var(--color-surface); color:var(--color-text);">
+    <form method="post" action="{% url 'supervisor_bulk_periodic_allocate' %}" id="bulk-allocate-form" onsubmit="return handleBulkSubmit(this);">
+      {% csrf_token %}
+      <h3 style="margin-top:0; font-size:18px; font-weight:800; color:var(--color-text);">
+        Bulk Issue Periodic Equipment Kit
+      </h3>
+      <p style="font-size:13px; color:var(--color-text-secondary); line-height:1.5;">
+        This action will automatically log <strong>1 piece of every active safety item</strong> to <strong>all active employees</strong> for this periodic cycle.
+      </p>
+      <div style="padding:12px; background:var(--color-primary-light); border:1px solid var(--color-primary-border); border-radius:var(--radius-md); font-size:13px; margin-bottom:20px;">
+        <strong>Cycle Efficiency Summary:</strong><br>
+        • Allocates 1 unit of each active item to every active employee.<br>
+        • Decrements inventory stock automatically.<br>
+        • Eliminates manual repetitive logging for routine period cycles.
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn btn-secondary" id="bulk-cancel-btn" onclick="document.getElementById('bulk-allocate-dialog').close();">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="bulk-confirm-btn">
+          <span>Confirm Bulk Allocation</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+  function handleBulkSubmit(form) {
+    var btn = document.getElementById('bulk-confirm-btn');
+    var cancelBtn = document.getElementById('bulk-cancel-btn');
+    if (btn.disabled) return false;
+
+    btn.disabled = true;
+    btn.style.opacity = '0.65';
+    btn.style.cursor = 'wait';
+    if (cancelBtn) cancelBtn.disabled = true;
+
+    btn.innerHTML = '<svg style="width:16px; height:16px; animation:spin 1s linear infinite; display:inline-block; vertical-align:-3px; margin-right:6px;" fill="none" viewBox="0 0 24 24"><circle style="opacity:0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing Allotment...';
+    return true;
+  }
+  </script>
+
+  <style>
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  </style>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-header" style="margin-bottom: 16px; padding-bottom: 8px;">
+      <h2 class="card-title">
+        <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        1. Select Employee
+      </h2>
+    </div>
+
+    <div class="search-wrapper">
+      <label for="employee-search" id="search-label">Employee Name or Code</label>
+      <input type="text" id="employee-search" autocomplete="off" placeholder="Start typing name or employee code...">
+      <div id="employee-results" class="search-results"></div>
+    </div>
+
+    <div id="selected-employee-bar" class="selected-employee-bar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="avatar-circle" style="width:34px; height:34px; font-size:14px;">EMP</div>
+        <div>
+          <span class="text-muted" style="font-size:12px; display:block;">Selected Employee</span>
+          <strong id="selected-employee-name" style="font-size:15px;"></strong>
+        </div>
+      </div>
+      <button type="button" id="change-employee-btn" class="btn btn-sm">Change Employee</button>
+    </div>
+  </div>
+
+  <form method="post" action="{% url 'supervisor_log_submit' %}" id="log-form">
+    {% csrf_token %}
+    <input type="hidden" name="employee_id" id="employee_id_input">
+
+    <div class="card disabled" id="items-card" style="margin-bottom:20px;">
+      <div class="card-header" style="margin-bottom: 16px; padding-bottom: 8px;">
+        <h2 class="card-title">
+          <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          2. Items Issued
+        </h2>
+      </div>
+
+      <div id="item-rows">
+        <div class="item-row">
+          <select name="item" class="item-select" required disabled>
+            <option value="">Select an employee first...</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; flex-wrap:wrap; gap:12px;">
+        <button type="button" id="add-item-row-btn" class="btn btn-sm" disabled>+ Add another item</button>
+
+        <div class="text-muted" style="font-size:12px; display:flex; align-items:center; gap:16px;">
+          <span><span class="color-dot" style="background:{{ app_settings.color_today }};"></span> Taken today</span>
+          <span><span class="color-dot" style="background:{{ app_settings.color_period }};"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="log-submit-btn" disabled style="padding:12px 28px; font-size:15px;">
+      <svg style="width:18px; height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      Submit Log Entry
+    </button>
+  </form>
+
+<script>
+(function() {
+  const MAX_ITEM_ROWS = {{ max_item_rows }};
+  const searchInput = document.getElementById('employee-search');
+  const searchLabel = document.getElementById('search-label');
+  const resultsBox = document.getElementById('employee-results');
+  const selectedBar = document.getElementById('selected-employee-bar');
+  const selectedNameEl = document.getElementById('selected-employee-name');
+  const changeBtn = document.getElementById('change-employee-btn');
+  const employeeIdInput = document.getElementById('employee_id_input');
+  const itemsCard = document.getElementById('items-card');
+  const itemRowsContainer = document.getElementById('item-rows');
+  const addItemRowBtn = document.getElementById('add-item-row-btn');
+  const submitBtn = document.getElementById('log-submit-btn');
+
+  let itemOptionsData = [];   // [{id, name, status}]
+  let itemColors = {today: '#dc2626', period: '#2563eb'};
+  let searchTimer = null;
+
+  function debounceSearch() {
+    clearTimeout(searchTimer);
+    const q = searchInput.value.trim();
+    if (q.length < 1) {
+      resultsBox.style.display = 'none';
+      resultsBox.innerHTML = '';
+      return;
+    }
+    searchTimer = setTimeout(() => runSearch(q), 250);
+  }
+
+  function runSearch(q) {
+    fetch('{% url "supervisor_log_employee_search" %}?q=' + encodeURIComponent(q))
+      .then(r => r.json())
+      .then(data => {
+        resultsBox.innerHTML = '';
+        if (data.results.length === 0) {
+          const div = document.createElement('div');
+          div.className = 'no-results';
+          div.textContent = 'No matching active employees';
+          resultsBox.appendChild(div);
+        } else {
+          data.results.forEach(emp => {
+            const div = document.createElement('div');
+            div.textContent = emp.name + ' (' + emp.code + ')';
+            div.addEventListener('click', () => selectEmployee(emp.id, emp.name));
+            resultsBox.appendChild(div);
+          });
+        }
+        resultsBox.style.display = 'block';
+      });
+  }
+
+  function selectEmployee(id, name) {
+    employeeIdInput.value = id;
+    selectedNameEl.textContent = name;
+    selectedBar.style.display = 'flex';
+    searchInput.value = '';
+    resultsBox.style.display = 'none';
+    resultsBox.innerHTML = '';
+    searchLabel.style.display = 'none';
+    searchInput.style.display = 'none';
+
+    fetch('{% url "supervisor_log_item_options" %}?employee_id=' + id)
+      .then(r => r.json())
+      .then(data => {
+        itemOptionsData = data.results;
+        itemColors = data.colors;
+        itemsCard.classList.remove('disabled');
+        addItemRowBtn.disabled = false;
+        submitBtn.disabled = false;
+        const firstSelect = itemRowsContainer.querySelector('select');
+        firstSelect.disabled = false;
+        refreshItemSelects();
+      });
+  }
+
+  function resetEmployeeSelection() {
+    employeeIdInput.value = '';
+    selectedBar.style.display = 'none';
+    searchInput.style.display = '';
+    searchLabel.style.display = '';
+    searchInput.value = '';
+    itemOptionsData = [];
+
+    itemsCard.classList.add('disabled');
+    addItemRowBtn.disabled = true;
+    submitBtn.disabled = true;
+
+    itemRowsContainer.innerHTML = '';
+    itemRowsContainer.appendChild(buildItemRow(true));
+  }
+
+  function buildItemRow(required) {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    const select = document.createElement('select');
+    select.name = 'item';
+    select.className = 'item-select';
+    select.disabled = true;
+    if (required) select.required = true;
+    row.appendChild(select);
+    select.addEventListener('change', refreshItemSelects);
+    return row;
+  }
+
+  function refreshItemSelects() {
+    const selects = Array.from(itemRowsContainer.querySelectorAll('select'));
+    const chosen = selects.map(s => s.value).filter(v => v);
+
+    selects.forEach(select => {
+      const currentValue = select.value;
+      const usedByOthers = new Set(chosen.filter(v => v !== currentValue));
+
+      select.innerHTML = '';
+      const blankOpt = document.createElement('option');
+      blankOpt.value = '';
+      blankOpt.textContent = select.required ? 'Select safety item...' : '-- none --';
+      select.appendChild(blankOpt);
+
+      itemOptionsData.forEach(item => {
+        if (usedByOthers.has(String(item.id))) return;
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.name;
+        if (item.status === 'today') {
+          opt.style.color = itemColors.today;
+          opt.style.fontWeight = 'bold';
+        } else if (item.status === 'period') {
+          opt.style.color = itemColors.period;
+          opt.style.fontWeight = 'bold';
+        }
+        select.appendChild(opt);
+      });
+
+      select.value = currentValue;
+      select.disabled = false;
+    });
+  }
+
+  searchInput.addEventListener('input', debounceSearch);
+  document.addEventListener('click', (e) => {
+    if (!resultsBox.contains(e.target) && e.target !== searchInput) {
+      resultsBox.style.display = 'none';
+    }
+  });
+
+  changeBtn.addEventListener('click', resetEmployeeSelection);
+
+  addItemRowBtn.addEventListener('click', () => {
+    const currentRows = itemRowsContainer.querySelectorAll('.item-row').length;
+    if (currentRows >= MAX_ITEM_ROWS) return;
+    itemRowsContainer.appendChild(buildItemRow(false));
+    refreshItemSelects();
+    if (itemRowsContainer.querySelectorAll('.item-row').length >= MAX_ITEM_ROWS) {
+      addItemRowBtn.disabled = true;
+    }
+  });
+
+  itemRowsContainer.querySelector('select').addEventListener('change', refreshItemSelects);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefillId = urlParams.get('prefill_employee_id');
+  const prefillName = urlParams.get('emp');  // server sends ?emp=<name> after log submit
+  if (prefillId && prefillName) {
+    selectEmployee(prefillId, prefillName);
+  }
+})();
+</script>
+{% endblock %}

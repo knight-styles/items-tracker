@@ -1,0 +1,276 @@
+{% extends "tracker/base.html" %}
+{% block title %}Executive Dashboard - Safety Item Tracker{% endblock %}
+{% block content %}
+  <!-- Header Row with Quick Action Shortcuts -->
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Executive Dashboard</h1>
+      <div class="page-subtitle">Real-time inventory intelligence, monthly comparison trends, stock breakdown & asset integrity analytics</div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="{% url 'admin_item_add' %}" class="btn btn-secondary btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Add Item
+      </a>
+      <a href="{% url 'admin_employee_add' %}" class="btn btn-secondary btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+        Add Employee
+      </a>
+      <a href="{% url 'reports' %}" class="btn btn-primary btn-sm">
+        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        Reports
+      </a>
+    </div>
+  </div>
+
+  <!-- Top Row KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-title">Active Employees</div>
+        <div class="kpi-value">{{ total_employees }}</div>
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">Compliance: <strong>{{ compliance_rate }}%</strong> active</div>
+      </div>
+      <div class="kpi-icon kpi-icon-indigo">
+        <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-title">Total Stock Units</div>
+        <div class="kpi-value">{{ total_stock_qty }}</div>
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">Across {{ total_items }} item categories</div>
+      </div>
+      <div class="kpi-icon kpi-icon-emerald">
+        <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-title">Issued (30 Days)</div>
+        <div class="kpi-value">{{ total_issued_30d }}</div>
+        <div class="text-muted" style="font-size:12px; margin-top:4px;">Tracked gear units</div>
+      </div>
+      <div class="kpi-icon kpi-icon-amber">
+        <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      </div>
+    </div>
+
+    <div class="kpi-card" style="border-color: var(--color-success-border); background: var(--color-success-light);">
+      <div>
+        <div class="kpi-title" style="color: var(--color-success-hover);">Est. Audit Savings</div>
+        <div class="kpi-value" style="color: var(--color-success-hover);">${{ est_financial_savings }}</div>
+        <div style="font-size:12px; margin-top:4px; font-weight:600; color:var(--color-success-hover);">
+          &uarr; {{ est_units_saved }} units saved from loss
+        </div>
+      </div>
+      <div class="kpi-icon kpi-icon-emerald">
+        <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+    </div>
+
+    <div class="kpi-card" {% if low_stock_items > 0 %}style="border-color: var(--color-danger-border); background: var(--color-danger-light);"{% endif %}>
+      <div>
+        <div class="kpi-title" {% if low_stock_items > 0 %}style="color: var(--color-danger-hover);"{% endif %}>Reorder Warnings</div>
+        <div class="kpi-value" {% if low_stock_items > 0 %}style="color: var(--color-danger-hover);"{% endif %}>{{ low_stock_items }}</div>
+        <div style="font-size:12px; margin-top:4px; font-weight:600; color:{% if out_of_stock_count > 0 %}var(--color-danger-hover){% else %}var(--color-text-secondary){% endif %};">
+          {% if out_of_stock_count > 0 %}<strong>{{ out_of_stock_count }}</strong> out of stock{% else %}All items in stock{% endif %}
+        </div>
+      </div>
+      <div class="kpi-icon kpi-icon-rose">
+        <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 1 Graphs: Month-over-Month Comparison & 7-Day Usage Trend -->
+  <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); margin-bottom: 24px;">
+    
+    <!-- 1. Month-over-Month Comparison Graph -->
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          Month-over-Month Issue Volume
+        </h2>
+        <span class="badge badge-role" style="font-size:11px;">4-Month Comparison</span>
+      </div>
+      <div class="chart-container" style="height: 190px;">
+        {% for m in monthly_trend %}
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-count">
+              {{ m.count }}
+              {% if m.change_pct != 0.0 %}
+                <div style="font-size:10px; font-weight:600; color:{% if m.change_pct > 0 %}var(--color-success){% else %}var(--color-danger){% endif %};">
+                  {% if m.change_pct > 0 %}+{% endif %}{{ m.change_pct }}%
+                </div>
+              {% endif %}
+            </div>
+            <div class="chart-bar" style="height: {{ m.pct }}%; min-height: 8px; {% if m.is_current %}background: linear-gradient(180deg, var(--color-primary) 0%, #312e81 100%);{% else %}background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);{% endif %}"></div>
+            <div class="chart-bar-label" style="{% if m.is_current %}font-weight:800; color:var(--color-primary);{% endif %}">{{ m.full_label }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 2. 7-Day Daily Usage Trend Graph -->
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+          7-Day Daily Demand
+        </h2>
+        {% if peak_day %}
+          <span class="badge badge-role" style="font-size:11px;">Peak: {{ peak_day }} ({{ peak_count }})</span>
+        {% endif %}
+      </div>
+      <div class="chart-container" style="height: 190px;">
+        {% for day in trend %}
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-count">{{ day.count }}</div>
+            <div class="chart-bar" style="height: {{ day.pct }}%; min-height: 6px; {% if day.is_peak %}background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);{% endif %}"></div>
+            <div class="chart-bar-label">{{ day.label }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Row 2 Graphs: Stock Inventory Distribution & Savings / Cost Breakdown -->
+  <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); margin-bottom: 24px;">
+
+    <!-- 3. Stock Inventory Distribution & Health -->
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          Stock Inventory Distribution
+        </h2>
+      </div>
+
+      <!-- Stock Health Status Pills -->
+      <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+        <div style="flex:1; padding:10px 12px; background:var(--color-success-light); border:1px solid var(--color-success-border); border-radius:var(--radius-md); text-align:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--color-success-hover); text-transform:uppercase;">Healthy</div>
+          <div style="font-size:18px; font-weight:800; color:var(--color-success-hover);">{{ healthy_stock_count }} items ({{ healthy_pct }}%)</div>
+        </div>
+        <div style="flex:1; padding:10px 12px; background:var(--color-warning-light); border:1px solid var(--color-warning-border); border-radius:var(--radius-md); text-align:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--color-warning-hover); text-transform:uppercase;">Low Stock</div>
+          <div style="font-size:18px; font-weight:800; color:var(--color-warning-hover);">{{ low_stock_items }} items ({{ low_stock_pct }}%)</div>
+        </div>
+        <div style="flex:1; padding:10px 12px; background:var(--color-danger-light); border:1px solid var(--color-danger-border); border-radius:var(--radius-md); text-align:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--color-danger-hover); text-transform:uppercase;">Out of Stock</div>
+          <div style="font-size:18px; font-weight:800; color:var(--color-danger-hover);">{{ out_of_stock_count }} items ({{ out_of_stock_pct }}%)</div>
+        </div>
+      </div>
+
+      <!-- Item Distribution List -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        {% for item in stock_distribution %}
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:4px;">
+              <span>{{ item.name }}</span>
+              <span>
+                <strong>{{ item.stock }}</strong> units
+                {% if item.is_low %}<span style="color:var(--color-danger); font-size:11px;">(Low)</span>{% endif %}
+              </span>
+            </div>
+            <div style="width:100%; height:8px; background:var(--color-bg); border-radius:var(--radius-full); overflow:hidden;">
+              <div style="width: {{ item.pct }}%; height:100%; {% if item.is_low %}background:var(--color-danger);{% else %}background:linear-gradient(90deg, #10b981 0%, #059669 100%);{% endif %} border-radius:var(--radius-full);"></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 4. Financial & Loss Prevention Savings Graph Card -->
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg style="width:20px; height:20px; color:var(--color-success-hover);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Equipment Waste Prevention & Savings
+        </h2>
+      </div>
+
+      <div style="padding:16px; background:var(--color-success-light); border:1px solid var(--color-success-border); border-radius:var(--radius-md); margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:13px; font-weight:700; color:var(--color-success-hover);">Estimated Financial Savings</span>
+          <span style="font-size:22px; font-weight:800; color:var(--color-success-hover);">${{ est_financial_savings }}</span>
+        </div>
+        <div style="font-size:12px; color:var(--color-text-secondary);">
+          Controlled inventory tracking prevents an estimated <strong>25% equipment loss/waste</strong> (approx. <strong>{{ est_units_saved }} units</strong> saved this month).
+        </div>
+      </div>
+
+      <!-- Top Requested Equipment Demand Bars -->
+      <div style="font-size:13px; font-weight:700; margin-bottom:12px; color:var(--color-text);">Top Equipment Demand Distribution</div>
+      {% if top_items %}
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          {% for item in top_items %}
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:4px;">
+                <span>{{ item.item__name }}</span>
+                <span class="text-muted"><strong>{{ item.total_issued }}</strong> issued</span>
+              </div>
+              <div style="width:100%; height:8px; background:var(--color-bg); border-radius:var(--radius-full); overflow:hidden;">
+                <div style="width: {{ item.pct }}%; height:100%; background:linear-gradient(90deg, var(--color-primary) 0%, #6366f1 100%); border-radius:var(--radius-full);"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-muted" style="text-align:center; padding:20px 0;">No usage records logged in past 30 days.</div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- High-Frequency Replacement Anomaly Monitor (MERGED 1 ROW PER EMPLOYEE) -->
+  <div class="card" style="margin-bottom: 24px; border-color: var(--color-warning-border);">
+    <div class="card-header">
+      <h2 class="card-title">
+        <svg style="width:20px; height:20px; color:var(--color-warning);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        High-Frequency Replacement Anomaly Monitor
+      </h2>
+      <span class="badge badge-role" style="background:var(--color-warning-light); color:var(--color-warning-hover); border-color:var(--color-warning-border);">
+        Asset Lifecycle Integrity: <strong>{{ integrity_score }}%</strong>
+      </span>
+    </div>
+
+    <div style="margin-bottom:16px; font-size:13px; color:var(--color-text-secondary);">
+      Monitors short-interval equipment re-allocations (2+ issues of safety gear to an employee within 14 days) to audit equipment turnover, prevent unrecorded loss, and ensure proper asset usage compliance.
+    </div>
+
+    {% if anomalies_list %}
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        {% for a in anomalies_list %}
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--color-warning-light); border:1px solid var(--color-warning-border); border-radius:var(--radius-md);">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="avatar-circle" style="width:34px; height:34px; background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                {{ a.employee_name|slice:":1"|upper }}
+              </div>
+              <div>
+                <div class="font-bold" style="font-size:14px; color:var(--color-text);">{{ a.employee_name }} <span class="text-muted" style="font-size:12px;">({{ a.employee_code }})</span></div>
+                <div class="text-secondary" style="font-size:13px;">Re-allocated Items: <strong>{{ a.items_summary }}</strong> &bull; Total Units: <strong>{{ a.total_qty }}</strong></div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge badge-danger" style="font-size:11px;">
+                {{ a.total_reallocations }} Re-allocations in 14d
+              </span>
+              <div class="text-muted" style="font-size:11px; margin-top:4px;">Audit Recommended</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="padding:16px; background:var(--color-success-light); border:1px solid var(--color-success-border); border-radius:var(--radius-md); text-align:center; color:var(--color-success-hover); font-weight:600;">
+        <svg style="width:20px; height:20px; display:inline; vertical-align:-4px; margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Optimal Equipment Lifespan: No short-interval re-allocation anomalies detected in the past 14 days.
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

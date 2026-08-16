@@ -1,0 +1,37 @@
+{% extends "tracker/base.html" %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Item - Safety Item Tracker{% endblock %}
+{% block content %}
+  <div style="margin-bottom:20px;">
+    <a href="{% url 'admin_items' %}" class="btn btn-sm">
+      &laquo; Back to Items Catalog
+    </a>
+  </div>
+
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">{% if is_edit %}Edit Safety Item{% else %}Add New Safety Item{% endif %}</h1>
+      <div class="page-subtitle">Configure safety equipment name, initial stock, and availability</div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:520px;">
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="text-muted" style="font-size:12px; margin-top:4px;">{{ field.help_text|safe }}</div>{% endif %}
+          {% if field.errors %}
+            <div class="alert alert-error" style="margin-top:8px;">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <div style="display:flex; gap:10px; margin-top:28px;">
+        <button type="submit" class="btn btn-primary">{% if is_edit %}Save Changes{% else %}Add Safety Item{% endif %}</button>
+        <a href="{% url 'admin_items' %}" class="btn">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
