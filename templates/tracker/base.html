@@ -137,12 +137,12 @@
 
     <main class="main-content">
       <!-- Offline Banner -->
-      <div id="offlineBanner" class="alert alert-error" style="display:none; margin-bottom:16px; align-items:center; justify-content:space-between; background:#ef4444; color:#ffffff; border:none;">
-        <div style="display:flex; align-items:center; gap:10px;">
+      <div id="offlineBanner" class="alert alert-error" style="display:none; margin-bottom:16px; align-items:center; justify-content:space-between; background:#ef4444; color:#ffffff; border:none; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
           <svg style="width:20px; height:20px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-12.728 0a9 9 0 010-12.728m12.728 0L5.636 18.364m12.728 0L5.636 5.636"></path></svg>
-          <span style="font-weight:600; font-size:14px;">You are working offline. Saved pages are still available.</span>
+          <span style="font-weight:600; font-size:13px; word-break:break-word;">You are working offline. Saved pages are still available.</span>
         </div>
-        <span class="badge" style="background:rgba(255,255,255,0.25); color:#fff; font-size:11px;">Offline Mode</span>
+        <span class="badge" style="background:rgba(255,255,255,0.25); color:#fff; font-size:11px; flex-shrink:0;">Offline Mode</span>
       </div>
 
       {% if messages %}
