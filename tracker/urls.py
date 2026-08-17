@@ -59,4 +59,7 @@ urlpatterns = [
     path("reports/employee/<int:pk>/", views.reports_employee_detail, name="reports_employee_detail"),
     path("reports/export/", views.reports_export_csv, name="reports_export_csv"),
     path("reports/export/xlsx/", views.reports_export_xlsx, name="reports_export_xlsx"),
+
+    # Employee Profile Card
+    path("employee/<int:pk>/profile/", views.employee_profile, name="employee_profile"),
 ]

@@ -3,6 +3,10 @@
 
 {% block extra_head %}
 <style>
+  :root {
+    --color-today-bg: {{ app_settings.color_today|default:"#dc2626" }};
+    --color-period-bg: {{ app_settings.color_period|default:"#2563eb" }};
+  }
   .search-wrapper { position: relative; max-width: 480px; }
   .search-results {
     position: absolute;
@@ -39,7 +43,8 @@
     border: 1px solid var(--color-primary-border);
     border-radius: var(--radius-md);
   }
-  #items-card.disabled { opacity: 0.45; pointer-events: none; }
+  #items-card.disabled #item-grid-container { opacity: 0.7; }
+  #items-card.disabled .items-toolbar { display: none !important; }
 
   /* Item Selection Grid & Toolbar Styles */
   .items-toolbar {
@@ -267,6 +272,94 @@
 
   /* Legacy dropdown styling preserved in comments */
   .item-row { max-width: 480px; margin-bottom: 12px; }
+
+  /* Responsive Media Queries for Log Usage Page */
+  @media (max-width: 768px) {
+    .item-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .items-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    .items-search-box {
+      max-width: 100%;
+      width: 100%;
+    }
+    .items-actions-group {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      gap: 6px;
+    }
+    .selection-pill {
+      flex: 1;
+      justify-content: center;
+    }
+    .selected-employee-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      padding: 12px 14px;
+    }
+    .selected-employee-bar button {
+      width: 100%;
+    }
+    #log-submit-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .item-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .item-card {
+      padding: 10px 8px;
+    }
+    .item-card-image-box {
+      height: 85px;
+      margin-bottom: 8px;
+    }
+    .item-card-image-box svg,
+    .item-card-image-box img {
+      max-width: 54px;
+      max-height: 54px;
+    }
+    .item-status-pill {
+      font-size: 9.5px;
+      padding: 1px 5px;
+    }
+    .item-check-indicator {
+      width: 18px;
+      height: 18px;
+    }
+    .item-check-indicator svg {
+      width: 11px;
+      height: 11px;
+    }
+    .item-card-name {
+      font-size: 12.5px;
+    }
+    .item-card-stock {
+      font-size: 10.5px;
+    }
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+
+  @media (max-width: 340px) {
+    .item-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -339,7 +432,7 @@
   }
   </style>
 
-  <div class="card" style="margin-bottom:20px;">
+  <div class="card" style="margin-bottom:24px;">
     <div class="card-header" style="margin-bottom: 16px; padding-bottom: 8px;">
       <h2 class="card-title">
         <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -361,7 +454,13 @@
           <strong id="selected-employee-name" style="font-size:15px;"></strong>
         </div>
       </div>
-      <button type="button" id="change-employee-btn" class="btn btn-sm">Change Employee</button>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a id="view-profile-link" href="#" class="btn btn-sm" style="display:none; font-size:12px; padding:6px 12px;" title="View Equipment Profile">
+          <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Profile
+        </a>
+        <button type="button" id="change-employee-btn" class="btn btn-sm">Change Employee</button>
+      </div>
     </div>
   </div>
 
@@ -369,17 +468,17 @@
     {% csrf_token %}
     <input type="hidden" name="employee_id" id="employee_id_input">
 
-    <div class="card disabled" id="items-card" style="margin-bottom:20px;">
-      <div class="card-header" style="margin-bottom: 16px; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <div class="card disabled" id="items-card" style="margin-bottom:24px;">
+      <div class="card-header" style="margin-bottom: 16px; padding-bottom: 12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--color-border);">
         <h2 class="card-title" style="margin:0;">
           <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
           2. Select Safety Equipment
         </h2>
 
-        <div class="text-muted" style="font-size:12px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-          <span><span class="color-dot" style="background:{{ app_settings.color_today }};"></span> Taken today</span>
-          <span><span class="color-dot" style="background:{{ app_settings.color_period }};"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
-          <span><span class="color-dot" style="background:var(--color-success);"></span> Available</span>
+        <div style="font-size:13px; font-weight:600; color:var(--color-text-secondary); display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+          <span><span class="color-dot" style="background: var(--color-today-bg); box-shadow: 0 0 0 2px rgba(220,38,38,0.2);"></span> Taken today</span>
+          <span><span class="color-dot" style="background: var(--color-period-bg); box-shadow: 0 0 0 2px rgba(37,99,235,0.2);"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
+          <span><span class="color-dot" style="background:var(--color-success); box-shadow: 0 0 0 2px rgba(16,185,129,0.2);"></span> Available</span>
         </div>
       </div>
 
@@ -398,8 +497,8 @@
         <button type="button" id="add-item-row-btn" class="btn btn-sm" disabled>+ Add another item</button>
 
         <div class="text-muted" style="font-size:12px; display:flex; align-items:center; gap:16px;">
-          <span><span class="color-dot" style="background:{{ app_settings.color_today }};"></span> Taken today</span>
-          <span><span class="color-dot" style="background:{{ app_settings.color_period }};"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
+          <span><span class="color-dot" style="background: var(--color-today-bg);"></span> Taken today</span>
+          <span><span class="color-dot" style="background: var(--color-period-bg);"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
         </div>
       </div>
       -->
@@ -421,9 +520,12 @@
 
       <!-- Equipment Visual Grid Container -->
       <div id="item-grid-container">
-        <div class="item-grid-placeholder" id="grid-placeholder">
-          <svg style="width:40px; height:40px; color:var(--color-text-muted); margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-          Please select an employee above to view and assign safety equipment.
+        <div class="item-grid-placeholder" id="grid-placeholder" style="padding: 40px 20px; text-align: center; color: var(--color-text-secondary); font-size: 14px; background: var(--color-surface-hover); border-radius: var(--radius-lg); border: 2px dashed var(--color-border); margin-top: 8px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+            <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          </div>
+          <strong style="display:block; font-size:15px; color:var(--color-text); margin-bottom:4px;">No Employee Selected</strong>
+          Please search and select an employee above to view and assign safety equipment.
         </div>
         <div class="item-grid" id="item-grid" style="display:none;"></div>
       </div>
@@ -694,6 +796,13 @@
     searchLabel.style.display = 'none';
     searchInput.style.display = 'none';
 
+    // Update profile link
+    const profileLink = document.getElementById('view-profile-link');
+    if (profileLink) {
+      profileLink.href = '/employee/' + id + '/profile/';
+      profileLink.style.display = 'inline-flex';
+    }
+
     // Show loading state in grid
     gridPlaceholder.style.display = 'block';
     gridPlaceholder.innerHTML = '<svg style="width:28px; height:28px; animation:spin 1s linear infinite; display:block; margin:0 auto 10px auto; color:var(--color-primary);" fill="none" viewBox="0 0 24 24"><circle style="opacity:0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Loading equipment options for ' + name + '...';
@@ -721,6 +830,10 @@
     searchLabel.style.display = '';
     searchInput.value = '';
     itemOptionsData = [];
+
+    // Hide profile link
+    const profileLink = document.getElementById('view-profile-link');
+    if (profileLink) { profileLink.style.display = 'none'; }
 
     itemsCard.classList.add('disabled');
     itemsToolbar.style.display = 'none';

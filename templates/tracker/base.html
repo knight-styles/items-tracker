@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Safety Item Tracker{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="{% static 'images/pwa/icon-192.png' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -111,8 +116,12 @@
       </div>
 
       {% if request.user.is_authenticated %}
-      <!-- Top Right Header User Profile Pill -->
-      <div class="header-user-nav">
+      <!-- Top Right Header User Profile Pill & PWA Install Button -->
+      <div class="header-user-nav" style="display:flex; align-items:center; gap:12px;">
+        <button type="button" id="pwaInstallBtn" class="btn btn-sm" style="display:none; background:var(--color-primary-light); color:var(--color-primary); border:1px solid var(--color-primary-border); font-weight:700; font-size:12px; padding:6px 12px; border-radius:var(--radius-full);">
+          <svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Install App
+        </button>
         <div class="user-profile-pill">
           <div class="avatar-circle">
             {{ request.user.username|slice:":1"|upper }}
@@ -127,6 +136,15 @@
     </header>
 
     <main class="main-content">
+      <!-- Offline Banner -->
+      <div id="offlineBanner" class="alert alert-error" style="display:none; margin-bottom:16px; align-items:center; justify-content:space-between; background:#ef4444; color:#ffffff; border:none;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <svg style="width:20px; height:20px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-12.728 0a9 9 0 010-12.728m12.728 0L5.636 18.364m12.728 0L5.636 5.636"></path></svg>
+          <span style="font-weight:600; font-size:14px;">You are working offline. Saved pages are still available.</span>
+        </div>
+        <span class="badge" style="background:rgba(255,255,255,0.25); color:#fff; font-size:11px;">Offline Mode</span>
+      </div>
+
       {% if messages %}
         <div class="alert-container">
           {% for message in messages %}
@@ -247,6 +265,61 @@
   }
 
   initTableSorting();
+})();
+</script>
+<script>
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(function(reg) {
+        console.log('PWA ServiceWorker registered with scope:', reg.scope);
+      })
+      .catch(function(err) {
+        console.warn('PWA ServiceWorker registration failed:', err);
+      });
+  });
+}
+
+// Offline / Online Status Banner Handling
+(function() {
+  const banner = document.getElementById('offlineBanner');
+  function updateOnlineStatus() {
+    if (!banner) return;
+    if (navigator.onLine) {
+      banner.style.display = 'none';
+    } else {
+      banner.style.display = 'flex';
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+})();
+
+// PWA Install Prompt handling
+(function() {
+  let deferredPrompt;
+  const installBtn = document.getElementById('pwaInstallBtn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) {
+      installBtn.style.display = 'inline-flex';
+    }
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('PWA install prompt choice:', outcome);
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+  }
 })();
 </script>
 </body>

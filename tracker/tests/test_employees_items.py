@@ -1,3 +1,6 @@
+import shutil
+import tempfile
+from django.test import override_settings
 from django.urls import reverse
 
 from tracker.models import AuditLog, Employee, Item, UsageLog
@@ -67,6 +70,17 @@ class EmployeeCRUDTests(BaseTestCase):
 
 
 class ItemCRUDTests(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.temp_media = tempfile.mkdtemp()
+        self.media_override = override_settings(MEDIA_ROOT=self.temp_media)
+        self.media_override.enable()
+
+    def tearDown(self):
+        self.media_override.disable()
+        shutil.rmtree(self.temp_media, ignore_errors=True)
+        super().tearDown()
+
     def test_admin_can_add_item(self):
         self.login_admin()
         response = self.client.post(

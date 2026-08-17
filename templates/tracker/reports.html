@@ -88,7 +88,7 @@
             {% for emp in results %}
             <tr>
               <td>
-                <a href="{% url 'reports_employee_detail' emp.pk %}" class="font-bold" style="font-size:15px;">
+                <a href="{% url 'employee_profile' emp.pk %}" class="font-bold" style="font-size:15px;">
                   {{ emp.name }}
                 </a>
               </td>

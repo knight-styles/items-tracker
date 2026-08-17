@@ -2,7 +2,7 @@ from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -47,27 +47,6 @@ def supervisor_log_employee_search(request):
     return JsonResponse({
         "results": [{"id": e.pk, "name": e.name, "code": e.code} for e in employees]
     })
-
-
-ITEM_IMAGE_MAP = {
-    "helmet": "/static/images/items/helmet.jpg",
-    "hard hat": "/static/images/items/helmet.jpg",
-    "goggle": "/static/images/items/goggles.jpg",
-    "glass": "/static/images/items/goggles.jpg",
-    "glove": "/static/images/items/gloves.jpg",
-    "vest": "/static/images/items/vest.jpg",
-    "jacket": "/static/images/items/vest.jpg",
-    "boot": "/static/images/items/boots.jpg",
-    "shoe": "/static/images/items/boots.jpg",
-}
-
-
-def get_item_image_url(name):
-    name_lower = (name or "").lower()
-    for key, url in ITEM_IMAGE_MAP.items():
-        if key in name_lower:
-            return url
-    return ""
 
 
 @supervisor_required

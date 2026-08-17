@@ -208,3 +208,45 @@ class LogGridSelectorTests(BaseTestCase):
         self.assertEqual(self.earplugs.current_stock, 199)
         self.assertEqual(self.gloves.current_stock, 29)
 
+    def test_log_submit_invalid_employee(self):
+        self.login_supervisor()
+        response = self.client.post(
+            reverse("supervisor_log_submit"),
+            {"employee_id": 99999, "item": [self.goggles.pk]},
+            follow=True,
+        )
+        self.assertContains(response, "Please select a valid employee")
+
+    def test_log_submit_no_items(self):
+        self.login_supervisor()
+        response = self.client.post(
+            reverse("supervisor_log_submit"),
+            {"employee_id": self.emp1.pk, "item": []},
+            follow=True,
+        )
+        self.assertContains(response, "Select at least one item to log")
+
+    def test_log_submit_duplicate_items(self):
+        self.login_supervisor()
+        response = self.client.post(
+            reverse("supervisor_log_submit"),
+            {"employee_id": self.emp1.pk, "item": [self.goggles.pk, self.goggles.pk]},
+            follow=True,
+        )
+        self.assertContains(response, "The same item was selected more than once")
+
+    def test_log_submit_non_numeric_items(self):
+        self.login_supervisor()
+        response = self.client.post(
+            reverse("supervisor_log_submit"),
+            {"employee_id": self.emp1.pk, "item": ["abc", "xyz"]},
+            follow=True,
+        )
+        self.assertContains(response, "One or more selected items are invalid")
+
+    def test_log_item_options_invalid_id(self):
+        self.login_supervisor()
+        response = self.client.get(reverse("supervisor_log_item_options"), {"employee_id": "abc"})
+        self.assertEqual(response.status_code, 400)
+
+

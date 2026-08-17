@@ -1,0 +1,49 @@
+{
+  "name": "Safety Item Tracker",
+  "short_name": "SafetyTracker",
+  "description": "Enterprise safety equipment tracking, compliance & inventory management",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "categories": ["business", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "/static/images/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Log Equipment Usage",
+      "short_name": "Log Usage",
+      "description": "Issue safety equipment to employees",
+      "url": "/log/",
+      "icons": [{ "src": "/static/images/pwa/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Stock Inventory",
+      "short_name": "Stock",
+      "description": "View and update safety item stock",
+      "url": "/stock/",
+      "icons": [{ "src": "/static/images/pwa/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Reports & Analytics",
+      "short_name": "Reports",
+      "description": "View equipment usage reports",
+      "url": "/reports/",
+      "icons": [{ "src": "/static/images/pwa/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

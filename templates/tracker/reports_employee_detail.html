@@ -11,9 +11,13 @@
 {% endblock %}
 
 {% block content %}
-  <div style="margin-bottom:20px;" class="no-print">
+  <div style="margin-bottom:20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;" class="no-print">
     <a href="{% url 'reports' %}?type=employee" class="btn btn-sm">
       &laquo; Back to Employee Summary
+    </a>
+    <a href="{% url 'employee_profile' employee.pk %}" class="btn btn-primary btn-sm" id="view-full-profile-btn">
+      <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+      View Full Profile
     </a>
   </div>
 

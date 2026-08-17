@@ -42,6 +42,7 @@ from .reports import (
     reports_export_csv,
     reports_export_xlsx,
 )
+from .employee_profile import employee_profile
 
 __all__ = [
     "login_view", "logout_view", "dashboard_redirect",
@@ -59,4 +60,5 @@ __all__ = [
     "supervisor_log_submit", "supervisor_bulk_periodic_allocate",
     "supervisor_stock", "supervisor_stock_update",
     "reports", "reports_employee_detail", "reports_export_csv", "reports_export_xlsx",
+    "employee_profile",
 ]

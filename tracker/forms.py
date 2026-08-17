@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import AppSettings, Employee, Item, StockUpdate, User
+from .models import AppSettings, Employee, Item, User
 
 
 class EmployeeForm(forms.ModelForm):

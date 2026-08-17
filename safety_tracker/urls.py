@@ -19,11 +19,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from django.views.static import serve
+
 urlpatterns = [
+    path('sw.js', serve, {'document_root': settings.BASE_DIR / 'static', 'path': 'sw.js'}),
     path('django-admin/', admin.site.urls),  # Django's built-in admin (superuser only)
     path('', include('tracker.urls')),
 ]
 
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

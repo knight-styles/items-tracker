@@ -909,7 +909,23 @@ dialog::backdrop {
 .font-semibold { font-weight: 600; }
 .font-bold { font-weight: 700; }
 
-/* Responsive Media Queries */
+/* ==========================================================================
+   Responsive Design System & Multi-Breakpoint Media Queries
+   ========================================================================== */
+
+/* Tablet & Intermediate Screens (<= 992px) */
+@media (max-width: 992px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .card-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* Mobile Devices & Small Tablets (<= 768px) */
 @media (max-width: 768px) {
   .main-wrapper {
     margin-left: 0;
@@ -929,6 +945,7 @@ dialog::backdrop {
     transform: translateX(-100%);
     z-index: 50;
     box-shadow: var(--shadow-xl);
+    width: 270px;
   }
 
   .sidebar.open {
@@ -939,31 +956,198 @@ dialog::backdrop {
     display: block;
   }
 
+  .app-header {
+    padding: 0 14px;
+  }
+
+  .brand-title {
+    font-size: 16px;
+  }
+
+  .user-profile-pill .user-details {
+    display: none;
+  }
+
   .main-content {
     padding: 16px 12px;
   }
 
   .page-header-row {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 12px;
+  }
+
+  .page-header-row > div:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .page-header-row .btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 120px;
   }
 
   .card {
-    padding: 16px;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+
+  /* Filter Forms in Cards */
+  .card form[method="get"] {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .card form[method="get"] .form-group {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .card form[method="get"] button,
+  .card form[method="get"] a.btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Table Horizontal Scrolling & Responsive Padding */
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-sm);
+  }
+
+  table {
+    min-width: 560px;
   }
 
   th, td {
-    padding: 10px 12px;
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  /* Compact Action Buttons in Table Cells */
+  td .btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
   }
 
   .kpi-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    padding: 14px;
+  }
+
+  .kpi-value {
+    font-size: 22px;
+  }
+
+  .kpi-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .kpi-icon svg {
+    width: 20px;
+    height: 20px;
   }
 
   .chart-container {
-    height: 140px;
+    height: 150px;
+    padding-top: 16px;
+    gap: 8px;
+  }
+
+  dialog {
+    padding: 18px;
+    width: 95%;
+    max-width: 95%;
+  }
+}
+
+/* Mobile Portrait & Small Phones (<= 576px) */
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 20px;
+  }
+
+  .page-subtitle {
+    font-size: 12.5px;
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-logo svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .brand-title {
+    font-size: 15px;
+  }
+
+  .badge-role {
+    display: none;
+  }
+
+  /* Forms & Action Buttons */
+  .card form {
+    max-width: 100%;
+  }
+
+  .card form div[style*="display:flex"] {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .card form div[style*="display:flex"] .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Login Screen */
+  .login-box {
+    padding: 24px 18px;
+  }
+
+  .login-header h1 {
+    font-size: 20px;
+  }
+
+  .login-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  /* KPI Grid on Small Phones */
+  .kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* Very Small Phones (<= 380px) */
+@media (max-width: 380px) {
+  .page-header-row .btn {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .table-container table {
+    min-width: 500px;
   }
 }
 
