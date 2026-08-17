@@ -154,3 +154,24 @@ class ReportsExportTests(BaseTestCase):
         wb = load_workbook(io.BytesIO(response.content))
         ws = wb.active
         self.assertEqual(ws.title, "Employee Summary")
+
+    def test_csv_export_stock(self):
+        self.login_admin()
+        response = self.client.get(reverse("reports_export_csv"), {"type": "stock"})
+        self.assertEqual(response["Content-Type"], "text/csv")
+        content = response.content.decode()
+        self.assertIn("Date/Time,Item,Quantity Added,Updated By", content)
+
+    def test_xlsx_export_stock(self):
+        self.login_admin()
+        response = self.client.get(reverse("reports_export_xlsx"), {"type": "stock"})
+        self.assertEqual(
+            response["Content-Type"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        import io
+        from openpyxl import load_workbook
+        wb = load_workbook(io.BytesIO(response.content))
+        ws = wb.active
+        self.assertEqual(ws.title, "Stock History")
+        self.assertEqual(ws["A1"].value, "Date/Time")

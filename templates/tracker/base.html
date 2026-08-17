@@ -118,10 +118,12 @@
       {% if request.user.is_authenticated %}
       <!-- Top Right Header User Profile Pill & PWA Install Button -->
       <div class="header-user-nav">
+        <!-- Install App Button (commented out)
         <button type="button" id="pwaInstallBtn" class="btn btn-sm pwa-install-btn" style="display:none;">
           <svg style="width:14px; height:14px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
           <span class="btn-text">Install App</span>
         </button>
+        -->
         <div class="user-profile-pill">
           <div class="avatar-circle">
             {{ request.user.username|slice:":1"|upper }}

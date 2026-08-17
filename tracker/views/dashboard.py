@@ -1,5 +1,5 @@
 import calendar
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.db.models import Count, Sum
 from django.shortcuts import render
@@ -58,7 +58,7 @@ def admin_dashboard(request):
             target_month += 12
             target_year -= 1
 
-        first_day_dt = timezone.make_aware(timezone.datetime(target_year, target_month, 1, 0, 0, 0))
+        first_day_dt = timezone.make_aware(datetime(target_year, target_month, 1, 0, 0, 0))
         last_day_num = calendar.monthrange(target_year, target_month)[1]
         next_month_dt = first_day_dt + timedelta(days=last_day_num)
 
@@ -102,7 +102,7 @@ def admin_dashboard(request):
 
     for i in range(6, -1, -1):
         day_date = today - timedelta(days=i)
-        day_start = timezone.make_aware(timezone.datetime(day_date.year, day_date.month, day_date.day, 0, 0, 0))
+        day_start = timezone.make_aware(datetime(day_date.year, day_date.month, day_date.day, 0, 0, 0))
         day_end = day_start + timedelta(days=1)
 
         count = UsageLog.objects.filter(logged_at__gte=day_start, logged_at__lt=day_end).aggregate(total=Sum("quantity"))["total"] or 0
@@ -165,7 +165,8 @@ def admin_dashboard(request):
     total_allocations_14d = UsageLog.objects.filter(logged_at__gte=fourteen_days_ago).count()
 
     if total_allocations_14d > 0:
-        variance_rate = round((sum(a["total_reallocations"] for a in anomalies_list) / total_allocations_14d) * 100, 1)
+        raw_variance = (sum(a["total_reallocations"] for a in anomalies_list) / total_allocations_14d) * 100
+        variance_rate = min(100.0, round(raw_variance, 1))
         integrity_score = max(0.0, round(100.0 - variance_rate, 1))
     else:
         variance_rate = 0.0

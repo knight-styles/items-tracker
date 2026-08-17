@@ -32,7 +32,7 @@ def employee_profile(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
     app_settings = AppSettings.load()
     now = timezone.now()
-    today = now.date()
+    today = timezone.localtime(now).date()
     start_of_week = today - timedelta(days=today.weekday())
     start_of_month = today.replace(day=1)
 
@@ -63,6 +63,7 @@ def employee_profile(request, pk):
                 Value(0),
             ),
         )
+        .distinct()
         .order_by("-last_issued_at")
     )
 

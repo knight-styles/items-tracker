@@ -90,7 +90,10 @@ class Item(models.Model):
 
     def get_image_url(self):
         if self.image:
-            return self.image.url
+            try:
+                return self.image.url
+            except ValueError:
+                pass
         name_lower = self.name.lower()
         if "helmet" in name_lower or "hard hat" in name_lower:
             return "/static/images/items/helmet.jpg"

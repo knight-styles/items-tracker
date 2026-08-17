@@ -123,13 +123,12 @@ class EmployeeProfileHistoryTest(BaseTestCase):
         self.assertEqual(resp.context["result_count"], 2)
 
     def test_history_date_filter(self):
-        now = timezone.now()
         UsageLog.objects.create(employee=self.emp1, item=self.goggles, quantity=1, logged_by=self.supervisor)
 
         self.login_admin()
         url = reverse("employee_profile", args=[self.emp1.pk])
-        # Filter for today
-        today_str = now.strftime("%Y-%m-%d")
+        # Filter for today in application local timezone
+        today_str = timezone.localdate().strftime("%Y-%m-%d")
         resp = self.client.get(url, {"date_from": today_str, "date_to": today_str})
         self.assertEqual(resp.context["result_count"], 1)
 
