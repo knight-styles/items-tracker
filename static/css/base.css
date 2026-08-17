@@ -67,6 +67,14 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden !important;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   margin: 0;
   font-family: var(--font-main);
@@ -92,6 +100,9 @@ a:hover {
 .app-layout {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
 }
 
 /* Header Component */
@@ -107,6 +118,10 @@ a:hover {
   top: 0;
   z-index: 40;
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .brand-wrapper {
@@ -145,6 +160,19 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.pwa-install-btn {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .user-profile-pill {
@@ -382,7 +410,9 @@ a:hover {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: 100%;
   margin-left: var(--sidebar-width);
+  overflow-x: hidden;
 }
 
 .main-wrapper.no-sidebar {
@@ -395,6 +425,7 @@ a:hover {
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* Login Page Styling */
@@ -721,6 +752,9 @@ textarea:focus {
   padding: 24px;
   box-shadow: var(--shadow-md);
   margin-bottom: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .card-grid {
@@ -766,8 +800,10 @@ textarea:focus {
 
 /* Table Infrastructure & Sorting Indicators */
 .table-container {
-  width: 100%;
-  overflow-x: auto;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  display: block;
   -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-md);
 }
@@ -915,20 +951,10 @@ dialog::backdrop {
 
 /* Tablet & Intermediate Screens (<= 992px) */
 @media (max-width: 992px) {
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-  .card-header {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-}
-
-/* Mobile Devices & Small Tablets (<= 768px) */
-@media (max-width: 768px) {
   .main-wrapper {
-    margin-left: 0;
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
   }
 
   .mobile-menu-toggle {
@@ -956,20 +982,46 @@ dialog::backdrop {
     display: block;
   }
 
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .card-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* Mobile Devices & Small Tablets (<= 768px) */
+@media (max-width: 768px) {
   .app-header {
-    padding: 0 14px;
+    padding: 0 10px;
   }
 
   .brand-title {
-    font-size: 16px;
+    font-size: 15px;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .user-profile-pill .user-details {
-    display: none;
+  .user-profile-pill .user-details,
+  .user-profile-pill .badge-role {
+    display: none !important;
+  }
+
+  .user-profile-pill {
+    padding: 4px;
+    background: transparent;
+    border: none;
   }
 
   .main-content {
-    padding: 16px 12px;
+    padding: 14px 10px;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
 
   .page-header-row {
@@ -992,7 +1044,7 @@ dialog::backdrop {
   }
 
   .card {
-    padding: 14px;
+    padding: 14px 10px;
     border-radius: var(--radius-md);
     margin-bottom: 16px;
   }
@@ -1017,14 +1069,17 @@ dialog::backdrop {
 
   /* Table Horizontal Scrolling & Responsive Padding */
   .table-container {
-    width: 100%;
-    overflow-x: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    display: block;
     -webkit-overflow-scrolling: touch;
     border-radius: var(--radius-sm);
   }
 
-  table {
+  .table-container table {
     min-width: 560px;
+    width: 100%;
   }
 
   th, td {
@@ -1077,12 +1132,35 @@ dialog::backdrop {
 
 /* Mobile Portrait & Small Phones (<= 576px) */
 @media (max-width: 576px) {
+  .app-header {
+    padding: 0 8px;
+  }
+
+  .brand-wrapper {
+    gap: 6px;
+  }
+
+  .brand-title {
+    font-size: 14px;
+    max-width: 90px;
+  }
+
+  .pwa-install-btn {
+    padding: 4px 6px !important;
+    font-size: 11px !important;
+  }
+
+  .pwa-install-btn .btn-text {
+    display: none !important;
+  }
+
   .page-title {
     font-size: 20px;
   }
 
   .page-subtitle {
     font-size: 12.5px;
+    word-break: break-word;
   }
 
   .brand-logo {
@@ -1093,14 +1171,6 @@ dialog::backdrop {
   .brand-logo svg {
     width: 18px;
     height: 18px;
-  }
-
-  .brand-title {
-    font-size: 15px;
-  }
-
-  .badge-role {
-    display: none;
   }
 
   /* Forms & Action Buttons */
@@ -1141,13 +1211,17 @@ dialog::backdrop {
 
 /* Very Small Phones (<= 380px) */
 @media (max-width: 380px) {
+  .brand-title {
+    display: none !important;
+  }
+
   .page-header-row .btn {
     width: 100%;
     flex: 1 1 100%;
   }
 
   .table-container table {
-    min-width: 500px;
+    min-width: 460px;
   }
 }
 

@@ -274,6 +274,12 @@
   .item-row { max-width: 480px; margin-bottom: 12px; }
 
   /* Responsive Media Queries for Log Usage Page */
+  .selected-employee-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   @media (max-width: 768px) {
     .item-grid {
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -290,22 +296,39 @@
     }
     .items-actions-group {
       display: flex;
-      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: center;
       width: 100%;
-      gap: 6px;
+      gap: 8px;
     }
     .selection-pill {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+    .items-actions-group .btn {
       flex: 1;
       justify-content: center;
+      min-width: 110px;
+      white-space: nowrap;
     }
     .selected-employee-bar {
-      flex-direction: column;
-      align-items: stretch;
+      flex-direction: column !important;
+      align-items: stretch !important;
       gap: 12px;
       padding: 12px 14px;
     }
-    .selected-employee-bar button {
+    .selected-employee-actions {
       width: 100%;
+      display: flex;
+      gap: 8px;
+    }
+    .selected-employee-actions .btn,
+    .selected-employee-actions button {
+      flex: 1;
+      justify-content: center;
+      white-space: nowrap;
+      text-align: center;
     }
     #log-submit-btn {
       width: 100%;
@@ -330,13 +353,22 @@
       max-width: 54px;
       max-height: 54px;
     }
+    .item-card-header {
+      gap: 4px;
+    }
     .item-status-pill {
-      font-size: 9.5px;
-      padding: 1px 5px;
+      font-size: 9px;
+      padding: 2px 5px;
+      letter-spacing: 0;
+      max-width: calc(100% - 22px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .item-check-indicator {
       width: 18px;
       height: 18px;
+      flex-shrink: 0;
     }
     .item-check-indicator svg {
       width: 11px;
@@ -355,7 +387,7 @@
     }
   }
 
-  @media (max-width: 340px) {
+  @media (max-width: 360px) {
     .item-grid {
       grid-template-columns: 1fr;
     }
@@ -447,19 +479,19 @@
     </div>
 
     <div id="selected-employee-bar" class="selected-employee-bar">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div class="avatar-circle" style="width:34px; height:34px; font-size:14px;">EMP</div>
-        <div>
+      <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+        <div class="avatar-circle" style="width:34px; height:34px; font-size:14px; flex-shrink:0;">EMP</div>
+        <div style="min-width:0;">
           <span class="text-muted" style="font-size:12px; display:block;">Selected Employee</span>
-          <strong id="selected-employee-name" style="font-size:15px;"></strong>
+          <strong id="selected-employee-name" style="font-size:15px; word-break:break-word;"></strong>
         </div>
       </div>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <a id="view-profile-link" href="#" class="btn btn-sm" style="display:none; font-size:12px; padding:6px 12px;" title="View Equipment Profile">
+      <div class="selected-employee-actions">
+        <a id="view-profile-link" href="#" class="btn btn-sm" style="display:none; font-size:12px; padding:6px 12px; white-space:nowrap;" title="View Equipment Profile">
           <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
           Profile
         </a>
-        <button type="button" id="change-employee-btn" class="btn btn-sm">Change Employee</button>
+        <button type="button" id="change-employee-btn" class="btn btn-sm" style="white-space:nowrap;">Change Employee</button>
       </div>
     </div>
   </div>
@@ -475,7 +507,7 @@
           2. Select Safety Equipment
         </h2>
 
-        <div style="font-size:13px; font-weight:600; color:var(--color-text-secondary); display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+        <div class="legend-container" style="font-size:13px; font-weight:600; color:var(--color-text-secondary); display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
           <span><span class="color-dot" style="background: var(--color-today-bg); box-shadow: 0 0 0 2px rgba(220,38,38,0.2);"></span> Taken today</span>
           <span><span class="color-dot" style="background: var(--color-period-bg); box-shadow: 0 0 0 2px rgba(37,99,235,0.2);"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
           <span><span class="color-dot" style="background:var(--color-success); box-shadow: 0 0 0 2px rgba(16,185,129,0.2);"></span> Available</span>
@@ -564,15 +596,15 @@
     today: '{{ app_settings.color_today|default:"#dc2626" }}',
     period: '{{ app_settings.color_period|default:"#2563eb" }}'
   };
-  const periodDays = {{ app_settings.period_days|default:7 }};
-  const lowStockThreshold = {{ app_settings.low_stock_threshold|default:5 }};
+  const periodDays = Number('{{ app_settings.period_days|default:7 }}');
+  const lowStockThreshold = Number('{{ app_settings.low_stock_threshold|default:5 }}');
   let searchTimer = null;
 
   /*
   // =========================================================================
   // [PRESERVED DROPDOWN JAVASCRIPT LOGIC - COMMENTED OUT AS PER REQUIREMENT]
   // =========================================================================
-  const MAX_ITEM_ROWS = {{ max_item_rows }};
+  const MAX_ITEM_ROWS = Number('{{ max_item_rows|default:10 }}');
   const itemRowsContainer = document.getElementById('item-rows');
   const addItemRowBtn = document.getElementById('add-item-row-btn');
 

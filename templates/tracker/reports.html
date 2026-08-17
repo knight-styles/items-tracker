@@ -14,11 +14,11 @@
   </div>
 
   <!-- Tab Switch Buttons: "By Employee" "Stock History" -->
-  <div style="display:flex; gap:10px; margin-bottom:20px;">
-    <a href="{% url 'reports' %}?type=employee" class="btn {% if report_type == 'employee' %}btn-primary{% else %}btn-secondary{% endif %}">
+  <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+    <a href="{% url 'reports' %}?type=employee" class="btn {% if report_type == 'employee' %}btn-primary{% else %}btn-secondary{% endif %}" style="flex:1; justify-content:center; text-align:center;">
       By Employee
     </a>
-    <a href="{% url 'reports' %}?type=stock" class="btn {% if report_type == 'stock' %}btn-primary{% else %}btn-secondary{% endif %}">
+    <a href="{% url 'reports' %}?type=stock" class="btn {% if report_type == 'stock' %}btn-primary{% else %}btn-secondary{% endif %}" style="flex:1; justify-content:center; text-align:center;">
       Stock History
     </a>
   </div>
