@@ -68,6 +68,12 @@ class Employee(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=150, unique=True)
     current_stock = models.IntegerField(default=0, help_text="Can go negative if usage exceeds recorded stock")
+    image = models.ImageField(
+        upload_to="item_images/",
+        null=True,
+        blank=True,
+        help_text="Upload unique image for this equipment item",
+    )
     is_active = models.BooleanField(default=True)
 
     created_by = models.ForeignKey(
@@ -81,6 +87,22 @@ class Item(models.Model):
 
     class Meta:
         ordering = ["name"]
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        name_lower = self.name.lower()
+        if "helmet" in name_lower or "hard hat" in name_lower:
+            return "/static/images/items/helmet.jpg"
+        elif "goggle" in name_lower or "glass" in name_lower:
+            return "/static/images/items/goggles.jpg"
+        elif "glove" in name_lower:
+            return "/static/images/items/gloves.jpg"
+        elif "vest" in name_lower or "jacket" in name_lower:
+            return "/static/images/items/vest.jpg"
+        elif "boot" in name_lower or "shoe" in name_lower:
+            return "/static/images/items/boots.jpg"
+        return ""
 
     def __str__(self):
         return self.name

@@ -39,8 +39,224 @@
     border: 1px solid var(--color-primary-border);
     border-radius: var(--radius-md);
   }
-  .item-row { max-width: 480px; margin-bottom: 12px; }
   #items-card.disabled { opacity: 0.45; pointer-events: none; }
+
+  /* Item Selection Grid & Toolbar Styles */
+  .items-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .items-search-box {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    max-width: 340px;
+  }
+  .items-search-box input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    font-size: 13px;
+    transition: all var(--transition-fast);
+  }
+  .items-search-box input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    outline: none;
+  }
+  .items-search-box svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+  .items-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .selection-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary-border);
+  }
+
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .item-card {
+    position: relative;
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    user-select: none;
+    outline: none;
+  }
+  .item-card:hover {
+    border-color: var(--color-primary-border);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .item-card:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+  }
+  .item-card.is-selected {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25), var(--shadow-md);
+  }
+  .item-card.is-selected .item-card-image-box {
+    background: rgba(255, 255, 255, 0.95);
+    transform: scale(1.02);
+  }
+  .item-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+    min-height: 24px;
+  }
+  .item-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    line-height: 1.3;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .item-status-pill .status-bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .item-check-indicator {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+    color: transparent;
+  }
+  .item-card.is-selected .item-check-indicator {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+    transform: scale(1.08);
+  }
+  .item-check-indicator svg {
+    width: 14px;
+    height: 14px;
+  }
+  .item-card-image-box {
+    height: 100px;
+    background: var(--color-surface-hover);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    padding: 6px;
+    transition: all var(--transition-fast);
+    overflow: hidden;
+  }
+  .item-card-image-box svg {
+    width: 64px;
+    height: 64px;
+    transition: transform var(--transition-fast);
+  }
+  .item-card-image-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    transition: transform var(--transition-fast);
+  }
+  .item-card:hover .item-card-image-box svg,
+  .item-card:hover .item-card-image-box img {
+    transform: scale(1.06);
+  }
+  .item-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .item-card-name {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--color-text);
+    line-height: 1.3;
+    word-break: break-word;
+  }
+  .item-card-stock {
+    font-size: 11.5px;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+  }
+  .item-card-stock.is-low {
+    color: var(--color-danger);
+    font-weight: 700;
+  }
+  .item-grid-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    background: var(--color-surface-hover);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--color-border);
+  }
+  .item-grid-placeholder {
+    padding: 36px 20px;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 14px;
+  }
+
   .color-dot {
     display: inline-block;
     width: 10px;
@@ -48,6 +264,9 @@
     border-radius: 50%;
     margin-right: 4px;
   }
+
+  /* Legacy dropdown styling preserved in comments */
+  .item-row { max-width: 480px; margin-bottom: 12px; }
 </style>
 {% endblock %}
 
@@ -151,13 +370,22 @@
     <input type="hidden" name="employee_id" id="employee_id_input">
 
     <div class="card disabled" id="items-card" style="margin-bottom:20px;">
-      <div class="card-header" style="margin-bottom: 16px; padding-bottom: 8px;">
-        <h2 class="card-title">
+      <div class="card-header" style="margin-bottom: 16px; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <h2 class="card-title" style="margin:0;">
           <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          2. Items Issued
+          2. Select Safety Equipment
         </h2>
+
+        <div class="text-muted" style="font-size:12px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <span><span class="color-dot" style="background:{{ app_settings.color_today }};"></span> Taken today</span>
+          <span><span class="color-dot" style="background:{{ app_settings.color_period }};"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
+          <span><span class="color-dot" style="background:var(--color-success);"></span> Available</span>
+        </div>
       </div>
 
+      <!-- ========================================================================= -->
+      <!-- [PRESERVED DROPDOWN IMPLEMENTATION - COMMENTED OUT AS PER USER SPECIFICATION] -->
+      <!--
       <div id="item-rows">
         <div class="item-row">
           <select name="item" class="item-select" required disabled>
@@ -174,17 +402,41 @@
           <span><span class="color-dot" style="background:{{ app_settings.color_period }};"></span> Taken in last {{ app_settings.period_days }} day{{ app_settings.period_days|pluralize }}</span>
         </div>
       </div>
+      -->
+      <!-- ========================================================================= -->
+
+      <!-- Modern Visual Image Grid Selector Toolbar -->
+      <div class="items-toolbar" id="items-toolbar" style="display:none;">
+        <div class="items-search-box">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input type="text" id="item-filter-input" placeholder="Quick filter equipment..." autocomplete="off">
+        </div>
+
+        <div class="items-actions-group">
+          <span class="selection-pill" id="selection-count-badge">0 selected</span>
+          <button type="button" class="btn btn-sm" id="select-all-btn">Select All</button>
+          <button type="button" class="btn btn-sm" id="clear-all-btn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Equipment Visual Grid Container -->
+      <div id="item-grid-container">
+        <div class="item-grid-placeholder" id="grid-placeholder">
+          <svg style="width:40px; height:40px; color:var(--color-text-muted); margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Please select an employee above to view and assign safety equipment.
+        </div>
+        <div class="item-grid" id="item-grid" style="display:none;"></div>
+      </div>
     </div>
 
     <button type="submit" class="btn btn-primary" id="log-submit-btn" disabled style="padding:12px 28px; font-size:15px;">
       <svg style="width:18px; height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-      Submit Log Entry
+      <span id="submit-btn-text">Select items to log</span>
     </button>
   </form>
 
 <script>
 (function() {
-  const MAX_ITEM_ROWS = {{ max_item_rows }};
   const searchInput = document.getElementById('employee-search');
   const searchLabel = document.getElementById('search-label');
   const resultsBox = document.getElementById('employee-results');
@@ -193,13 +445,211 @@
   const changeBtn = document.getElementById('change-employee-btn');
   const employeeIdInput = document.getElementById('employee_id_input');
   const itemsCard = document.getElementById('items-card');
+  const submitBtn = document.getElementById('log-submit-btn');
+  const submitBtnText = document.getElementById('submit-btn-text');
+
+  // Grid Elements
+  const itemsToolbar = document.getElementById('items-toolbar');
+  const itemGrid = document.getElementById('item-grid');
+  const gridPlaceholder = document.getElementById('grid-placeholder');
+  const itemFilterInput = document.getElementById('item-filter-input');
+  const selectionCountBadge = document.getElementById('selection-count-badge');
+  const selectAllBtn = document.getElementById('select-all-btn');
+  const clearAllBtn = document.getElementById('clear-all-btn');
+
+  let itemOptionsData = [];   // [{id, name, status, stock}]
+  let itemColors = {
+    today: '{{ app_settings.color_today|default:"#dc2626" }}',
+    period: '{{ app_settings.color_period|default:"#2563eb" }}'
+  };
+  const periodDays = {{ app_settings.period_days|default:7 }};
+  const lowStockThreshold = {{ app_settings.low_stock_threshold|default:5 }};
+  let searchTimer = null;
+
+  /*
+  // =========================================================================
+  // [PRESERVED DROPDOWN JAVASCRIPT LOGIC - COMMENTED OUT AS PER REQUIREMENT]
+  // =========================================================================
+  const MAX_ITEM_ROWS = {{ max_item_rows }};
   const itemRowsContainer = document.getElementById('item-rows');
   const addItemRowBtn = document.getElementById('add-item-row-btn');
-  const submitBtn = document.getElementById('log-submit-btn');
 
-  let itemOptionsData = [];   // [{id, name, status}]
-  let itemColors = {today: '#dc2626', period: '#2563eb'};
-  let searchTimer = null;
+  function buildItemRow(required) {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    const select = document.createElement('select');
+    select.name = 'item';
+    select.className = 'item-select';
+    select.disabled = true;
+    if (required) select.required = true;
+    row.appendChild(select);
+    select.addEventListener('change', refreshItemSelects);
+    return row;
+  }
+
+  function refreshItemSelects() {
+    const selects = Array.from(itemRowsContainer ? itemRowsContainer.querySelectorAll('select') : []);
+    const chosen = selects.map(s => s.value).filter(v => v);
+
+    selects.forEach(select => {
+      const currentValue = select.value;
+      const usedByOthers = new Set(chosen.filter(v => v !== currentValue));
+
+      select.innerHTML = '';
+      const blankOpt = document.createElement('option');
+      blankOpt.value = '';
+      blankOpt.textContent = select.required ? 'Select safety item...' : '-- none --';
+      select.appendChild(blankOpt);
+
+      itemOptionsData.forEach(item => {
+        if (usedByOthers.has(String(item.id))) return;
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.name;
+        if (item.status === 'today') {
+          opt.style.color = itemColors.today;
+          opt.style.fontWeight = 'bold';
+        } else if (item.status === 'period') {
+          opt.style.color = itemColors.period;
+          opt.style.fontWeight = 'bold';
+        }
+        select.appendChild(opt);
+      });
+
+      select.value = currentValue;
+      select.disabled = false;
+    });
+  }
+  // =========================================================================
+  */
+
+  // SVG Visual Generator for Safety Equipment
+  function getEquipmentSvg(itemName) {
+    const name = (itemName || '').toLowerCase();
+
+    // 1. Safety Goggles / Eye Protection
+    if (name.includes('goggle') || name.includes('glass') || name.includes('spectacle') || name.includes('eye')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#EEF2FF"/>
+        <path d="M12 28C12 24.6863 14.6863 22 18 22H27C29.2091 22 31 23.7909 31 26V36C31 39.3137 28.3137 42 25 42H18C14.6863 42 12 39.3137 12 36V28Z" fill="#3B82F6" fill-opacity="0.15" stroke="#4F46E5" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M52 28C52 24.6863 49.3137 22 46 22H37C34.7909 22 33 23.7909 33 26V36C33 39.3137 35.6863 42 39 42H46C49.3137 42 52 39.3137 52 36V28Z" fill="#3B82F6" fill-opacity="0.15" stroke="#4F46E5" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M31 28H33" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M12 30H7C6.44772 30 6 29.5523 6 29C6 28.4477 6.44772 28 7 28H12" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
+        <path d="M52 30H57C57.5523 30 58 29.5523 58 29C58 28.4477 57.5523 28 57 28H52" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
+        <path d="M17 26L23 38" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+        <path d="M39 26L45 38" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    // 2. Work Gloves / Hand Protection
+    if (name.includes('glove') || name.includes('mitt') || name.includes('hand')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#FEF3C7"/>
+        <path d="M22 18V26M28 14V26M34 16V26M40 20V27" stroke="#D97706" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M18 28C18 24 22 24 22 28V36C22 36 17 34 15 31C13.5 28.5 15 26 17 26C18.5 26 19 28 20 29" stroke="#D97706" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M18 27V42C18 45.3137 20.6863 48 24 48H36C39.3137 48 42 45.3137 42 42V30C42 27 38 27 38 30V32" fill="#F59E0B" fill-opacity="0.2" stroke="#D97706" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="20" y="44" width="20" height="6" rx="2" fill="#F59E0B" stroke="#B45309" stroke-width="2"/>
+      </svg>`;
+    }
+
+    // 3. Safety Helmet / Hard Hat / Head Protection
+    if (name.includes('helmet') || name.includes('hard hat') || name.includes('hardhat') || name.includes('hat') || name.includes('cap')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#FEF9C3"/>
+        <path d="M14 38C14 26.9543 22.0589 18 32 18C41.9411 18 50 26.9543 50 38H14Z" fill="#EAB308" fill-opacity="0.25" stroke="#CA8A04" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M10 38H54C55.1046 38 56 38.8954 56 40C56 41.1046 55.1046 42 54 42H10C8.89543 42 8 41.1046 8 40C8 38.8954 8.89543 38 10 38Z" fill="#CA8A04" stroke="#A16207" stroke-width="2"/>
+        <path d="M30 18V38M34 18V38" stroke="#CA8A04" stroke-width="1.5"/>
+        <rect x="28" y="26" width="8" height="6" rx="1" fill="#EAB308" stroke="#A16207" stroke-width="1.5"/>
+      </svg>`;
+    }
+
+    // 4. Hearing Protection / Ear Plugs / Ear Muffs
+    if (name.includes('ear') || name.includes('plug') || name.includes('muff') || name.includes('hearing') || name.includes('sound')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#F0FDF4"/>
+        <path d="M18 34C18 24.0589 24.268 16 32 16C39.732 16 46 24.0589 46 34" stroke="#16A34A" stroke-width="3" stroke-linecap="round"/>
+        <rect x="14" y="32" width="10" height="16" rx="5" fill="#22C55E" fill-opacity="0.25" stroke="#16A34A" stroke-width="2.5"/>
+        <rect x="40" y="32" width="10" height="16" rx="5" fill="#22C55E" fill-opacity="0.25" stroke="#16A34A" stroke-width="2.5"/>
+        <circle cx="19" cy="40" r="2" fill="#15803D"/>
+        <circle cx="45" cy="40" r="2" fill="#15803D"/>
+      </svg>`;
+    }
+
+    // 5. High-Vis Vest / Safety Jacket / Clothing
+    if (name.includes('vest') || name.includes('jacket') || name.includes('suit') || name.includes('coat') || name.includes('high-vis') || name.includes('hivis')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#ECFDF5"/>
+        <path d="M18 16H25L28 26L23 48H15L18 16Z" fill="#10B981" fill-opacity="0.2" stroke="#059669" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M46 16H39L36 26L41 48H49L46 16Z" fill="#10B981" fill-opacity="0.2" stroke="#059669" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M25 16H39V24C39 27.866 35.866 31 32 31C28.134 31 25 27.866 25 24V16Z" fill="#34D399" fill-opacity="0.3" stroke="#059669" stroke-width="2"/>
+        <line x1="16" y1="36" x2="48" y2="36" stroke="#047857" stroke-width="2.5" stroke-dasharray="2 2"/>
+        <line x1="15" y1="42" x2="49" y2="42" stroke="#047857" stroke-width="2.5" stroke-dasharray="2 2"/>
+      </svg>`;
+    }
+
+    // 6. Safety Boots / Footwear / Shoes
+    if (name.includes('boot') || name.includes('shoe') || name.includes('foot') || name.includes('feet')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#FFF7ED"/>
+        <path d="M22 16H34V28L44 33C47 34.5 49 37 49 40V44H17V21C17 18.2386 19.2386 16 22 16Z" fill="#FB923C" fill-opacity="0.25" stroke="#EA580C" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M14 44H51C52.1046 44 53 44.8954 53 46C53 47.1046 52.1046 48 51 48H14C12.8954 48 12 47.1046 12 46C12 44.8954 12.8954 44 14 44Z" fill="#9A3412" stroke="#7C2D12" stroke-width="2"/>
+        <path d="M26 22H30M26 26H30M26 30H30" stroke="#EA580C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M40 38C43 38 46 40 46 44H36C36 41 38 38 40 38Z" fill="#EA580C" fill-opacity="0.4"/>
+      </svg>`;
+    }
+
+    // 7. Respirator / Dust Mask / N95
+    if (name.includes('mask') || name.includes('respirator') || name.includes('n95') || name.includes('dust') || name.includes('breath')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#F5F3FF"/>
+        <path d="M16 28C16 24 23 20 32 20C41 20 48 24 48 28V36C48 42.6274 40.8366 48 32 48C23.1634 48 16 42.6274 16 36V28Z" fill="#8B5CF6" fill-opacity="0.2" stroke="#7C3AED" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="32" cy="34" r="6" fill="#7C3AED" fill-opacity="0.3" stroke="#6D28D9" stroke-width="2"/>
+        <line x1="32" y1="30" x2="32" y2="38" stroke="#6D28D9" stroke-width="1.5"/>
+        <line x1="28" y1="34" x2="36" y2="34" stroke="#6D28D9" stroke-width="1.5"/>
+        <path d="M16 26L8 24M48 26L56 24M16 38L8 40M48 38L56 40" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    // 8. Face Shield / Welding Visor
+    if (name.includes('shield') || name.includes('visor')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#ECFEFF"/>
+        <path d="M18 18H46V22C46 23.1046 45.1046 24 44 24H20C18.8954 24 18 23.1046 18 22V18Z" fill="#0891B2" stroke="#0E7490" stroke-width="2"/>
+        <path d="M20 24V40C20 44.4183 25.3726 48 32 48C38.6274 48 44 44.4183 44 40V24" fill="#06B6D4" fill-opacity="0.15" stroke="#0891B2" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M26 28L30 42M34 28L38 42" stroke="#A5F3FC" stroke-width="2" stroke-linecap="round"/>
+        <path d="M18 20C15 20 14 22 14 26M46 20C49 20 50 22 50 26" stroke="#0E7490" stroke-width="2" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    // 9. Harness / Fall Protection / Lanyard
+    if (name.includes('harness') || name.includes('fall') || name.includes('lanyard') || name.includes('belt') || name.includes('rope')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#FFF1F2"/>
+        <path d="M20 16L24 48M44 16L40 48" stroke="#E11D48" stroke-width="3" stroke-linecap="round"/>
+        <line x1="21" y1="26" x2="43" y2="26" stroke="#BE123C" stroke-width="2.5"/>
+        <line x1="23" y1="38" x2="41" y2="38" stroke="#BE123C" stroke-width="2.5"/>
+        <circle cx="32" cy="26" r="3" fill="#FFE4E6" stroke="#9F1239" stroke-width="2"/>
+        <circle cx="32" cy="38" r="3" fill="#FFE4E6" stroke="#9F1239" stroke-width="2"/>
+      </svg>`;
+    }
+
+    // 10. First Aid / Medical Kit
+    if (name.includes('aid') || name.includes('kit') || name.includes('medical') || name.includes('first aid')) {
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="12" fill="#FEF2F2"/>
+        <rect x="14" y="22" width="36" height="26" rx="4" fill="#EF4444" fill-opacity="0.15" stroke="#DC2626" stroke-width="2.5"/>
+        <path d="M26 22V18C26 16.8954 26.8954 16 28 16H36C37.1046 16 38 16.8954 38 18V22" stroke="#DC2626" stroke-width="2.5"/>
+        <path d="M32 28V42M25 35H39" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    // Default: Universal Safety Equipment Shield
+    return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="12" fill="#F8FAFC"/>
+      <path d="M32 14L46 20V32C46 41 39.5 47.5 32 50C24.5 47.5 18 41 18 32V20L32 14Z" fill="#6366F1" fill-opacity="0.15" stroke="#4F46E5" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M27 31L31 35L38 27" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+  }
 
   function debounceSearch() {
     clearTimeout(searchTimer);
@@ -244,17 +694,23 @@
     searchLabel.style.display = 'none';
     searchInput.style.display = 'none';
 
+    // Show loading state in grid
+    gridPlaceholder.style.display = 'block';
+    gridPlaceholder.innerHTML = '<svg style="width:28px; height:28px; animation:spin 1s linear infinite; display:block; margin:0 auto 10px auto; color:var(--color-primary);" fill="none" viewBox="0 0 24 24"><circle style="opacity:0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Loading equipment options for ' + name + '...';
+    itemGrid.style.display = 'none';
+
     fetch('{% url "supervisor_log_item_options" %}?employee_id=' + id)
       .then(r => r.json())
       .then(data => {
-        itemOptionsData = data.results;
-        itemColors = data.colors;
+        itemOptionsData = data.results || [];
+        if (data.colors) {
+          itemColors = data.colors;
+        }
         itemsCard.classList.remove('disabled');
-        addItemRowBtn.disabled = false;
-        submitBtn.disabled = false;
-        const firstSelect = itemRowsContainer.querySelector('select');
-        firstSelect.disabled = false;
-        refreshItemSelects();
+        renderItemGrid();
+      })
+      .catch(err => {
+        gridPlaceholder.innerHTML = '<span style="color:var(--color-danger);">Failed to load equipment options. Please try again.</span>';
       });
   }
 
@@ -267,59 +723,206 @@
     itemOptionsData = [];
 
     itemsCard.classList.add('disabled');
-    addItemRowBtn.disabled = true;
-    submitBtn.disabled = true;
+    itemsToolbar.style.display = 'none';
+    itemGrid.style.display = 'none';
+    itemGrid.innerHTML = '';
+    gridPlaceholder.style.display = 'block';
+    gridPlaceholder.innerHTML = '<svg style="width:40px; height:40px; color:var(--color-text-muted); margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Please select an employee above to view and assign safety equipment.';
 
-    itemRowsContainer.innerHTML = '';
-    itemRowsContainer.appendChild(buildItemRow(true));
+    updateSelectionState();
   }
 
-  function buildItemRow(required) {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    const select = document.createElement('select');
-    select.name = 'item';
-    select.className = 'item-select';
-    select.disabled = true;
-    if (required) select.required = true;
-    row.appendChild(select);
-    select.addEventListener('change', refreshItemSelects);
-    return row;
-  }
+  function renderItemGrid() {
+    if (!itemOptionsData || itemOptionsData.length === 0) {
+      gridPlaceholder.style.display = 'block';
+      gridPlaceholder.innerHTML = 'No active safety items available in the system.';
+      itemsToolbar.style.display = 'none';
+      itemGrid.style.display = 'none';
+      itemGrid.innerHTML = '';
+      updateSelectionState();
+      return;
+    }
 
-  function refreshItemSelects() {
-    const selects = Array.from(itemRowsContainer.querySelectorAll('select'));
-    const chosen = selects.map(s => s.value).filter(v => v);
+    gridPlaceholder.style.display = 'none';
+    itemsToolbar.style.display = 'flex';
+    itemGrid.style.display = 'grid';
+    itemGrid.innerHTML = '';
 
-    selects.forEach(select => {
-      const currentValue = select.value;
-      const usedByOthers = new Set(chosen.filter(v => v !== currentValue));
+    itemOptionsData.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.dataset.itemId = String(item.id);
+      card.dataset.itemName = (item.name || '').toLowerCase();
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'checkbox');
+      card.setAttribute('aria-checked', 'false');
 
-      select.innerHTML = '';
-      const blankOpt = document.createElement('option');
-      blankOpt.value = '';
-      blankOpt.textContent = select.required ? 'Select safety item...' : '-- none --';
-      select.appendChild(blankOpt);
+      // Status Pill Configuration
+      let statusHtml = '';
+      if (item.status === 'today') {
+        card.classList.add('status-today');
+        statusHtml = `<div class="item-status-pill" style="background: rgba(220, 38, 38, 0.12); color: ${itemColors.today}; border: 1px solid ${itemColors.today};">
+          <span class="status-bullet" style="background: ${itemColors.today};"></span> Taken Today
+        </div>`;
+      } else if (item.status === 'period') {
+        card.classList.add('status-period');
+        statusHtml = `<div class="item-status-pill" style="background: rgba(37, 99, 235, 0.12); color: ${itemColors.period}; border: 1px solid ${itemColors.period};">
+          <span class="status-bullet" style="background: ${itemColors.period};"></span> Last ${periodDays}d
+        </div>`;
+      } else {
+        statusHtml = `<div class="item-status-pill" style="background: var(--color-success-light); color: var(--color-success); border: 1px solid var(--color-success-border);">
+          <span class="status-bullet" style="background: var(--color-success);"></span> Available
+        </div>`;
+      }
 
-      itemOptionsData.forEach(item => {
-        if (usedByOthers.has(String(item.id))) return;
-        const opt = document.createElement('option');
-        opt.value = item.id;
-        opt.textContent = item.name;
-        if (item.status === 'today') {
-          opt.style.color = itemColors.today;
-          opt.style.fontWeight = 'bold';
-        } else if (item.status === 'period') {
-          opt.style.color = itemColors.period;
-          opt.style.fontWeight = 'bold';
-        }
-        select.appendChild(opt);
+      // Stock Info
+      const stock = typeof item.stock !== 'undefined' ? item.stock : 0;
+      const isLowStock = stock <= lowStockThreshold;
+      const stockHtml = isLowStock
+        ? `<span class="item-card-stock is-low">Stock: ${stock} <span style="font-size:10px; background:var(--color-danger-light); color:var(--color-danger); padding:1px 5px; border-radius:4px;">Low</span></span>`
+        : `<span class="item-card-stock">Stock: ${stock}</span>`;
+
+      // Image / Visual Box: render AI image if available, fallback to vector SVG
+      const visualContent = item.image_url
+        ? `<img src="${item.image_url}" alt="${item.name}" style="width:100%; height:100%; object-fit:contain; border-radius:8px; mix-blend-mode:multiply;" loading="lazy">`
+        : getEquipmentSvg(item.name);
+
+      card.innerHTML = `
+        <input type="checkbox" name="item" value="${item.id}" class="item-card-checkbox" style="position:absolute; opacity:0; pointer-events:none;" tabindex="-1">
+        <div class="item-card-header">
+          ${statusHtml}
+          <div class="item-check-indicator">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+        <div class="item-card-image-box">
+          ${visualContent}
+        </div>
+        <div class="item-card-info">
+          <div class="item-card-name" title="${item.name}">${item.name}</div>
+          ${stockHtml}
+        </div>
+      `;
+
+      // Card Click / Interaction
+      card.addEventListener('click', (e) => {
+        toggleCardSelection(card);
       });
 
-      select.value = currentValue;
-      select.disabled = false;
+      // Keyboard Accessibility
+      card.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          toggleCardSelection(card);
+        }
+      });
+
+      itemGrid.appendChild(card);
     });
+
+    if (itemFilterInput.value.trim()) {
+      filterGridItems(itemFilterInput.value.trim());
+    }
+
+    updateSelectionState();
   }
+
+  function toggleCardSelection(card) {
+    const checkbox = card.querySelector('.item-card-checkbox');
+    const isSelected = !card.classList.contains('is-selected');
+    
+    if (isSelected) {
+      card.classList.add('is-selected');
+      card.setAttribute('aria-checked', 'true');
+      if (checkbox) checkbox.checked = true;
+    } else {
+      card.classList.remove('is-selected');
+      card.setAttribute('aria-checked', 'false');
+      if (checkbox) checkbox.checked = false;
+    }
+
+    updateSelectionState();
+  }
+
+  function updateSelectionState() {
+    const checkedCheckboxes = itemGrid.querySelectorAll('.item-card-checkbox:checked');
+    const count = checkedCheckboxes.length;
+
+    selectionCountBadge.textContent = count + ' ' + (count === 1 ? 'item selected' : 'items selected');
+    if (count > 0) {
+      selectionCountBadge.style.background = 'var(--color-primary-light)';
+      selectionCountBadge.style.color = 'var(--color-primary)';
+      submitBtn.disabled = false;
+      submitBtnText.textContent = 'Submit Log Entry (' + count + ' ' + (count === 1 ? 'item' : 'items') + ')';
+    } else {
+      selectionCountBadge.style.background = 'var(--color-surface-hover)';
+      selectionCountBadge.style.color = 'var(--color-text-secondary)';
+      submitBtn.disabled = true;
+      submitBtnText.textContent = 'Select items to log';
+    }
+  }
+
+  function filterGridItems(query) {
+    const q = (query || '').toLowerCase().trim();
+    const cards = Array.from(itemGrid.querySelectorAll('.item-card'));
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const name = card.dataset.itemName || '';
+      if (!q || name.includes(q)) {
+        card.style.display = 'flex';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    let emptyNotice = itemGrid.querySelector('.item-grid-empty');
+    if (visibleCount === 0) {
+      if (!emptyNotice) {
+        emptyNotice = document.createElement('div');
+        emptyNotice.className = 'item-grid-empty';
+        itemGrid.appendChild(emptyNotice);
+      }
+      emptyNotice.textContent = 'No safety equipment matching "' + query + '"';
+      emptyNotice.style.display = 'block';
+    } else if (emptyNotice) {
+      emptyNotice.style.display = 'none';
+    }
+  }
+
+  // Filter input event
+  itemFilterInput.addEventListener('input', (e) => {
+    filterGridItems(e.target.value);
+  });
+
+  // Select All button
+  selectAllBtn.addEventListener('click', () => {
+    const cards = itemGrid.querySelectorAll('.item-card');
+    cards.forEach(card => {
+      if (card.style.display !== 'none') {
+        card.classList.add('is-selected');
+        card.setAttribute('aria-checked', 'true');
+        const cb = card.querySelector('.item-card-checkbox');
+        if (cb) cb.checked = true;
+      }
+    });
+    updateSelectionState();
+  });
+
+  // Clear Selection button
+  clearAllBtn.addEventListener('click', () => {
+    const cards = itemGrid.querySelectorAll('.item-card');
+    cards.forEach(card => {
+      card.classList.remove('is-selected');
+      card.setAttribute('aria-checked', 'false');
+      const cb = card.querySelector('.item-card-checkbox');
+      if (cb) cb.checked = false;
+    });
+    updateSelectionState();
+  });
 
   searchInput.addEventListener('input', debounceSearch);
   document.addEventListener('click', (e) => {
@@ -330,18 +933,7 @@
 
   changeBtn.addEventListener('click', resetEmployeeSelection);
 
-  addItemRowBtn.addEventListener('click', () => {
-    const currentRows = itemRowsContainer.querySelectorAll('.item-row').length;
-    if (currentRows >= MAX_ITEM_ROWS) return;
-    itemRowsContainer.appendChild(buildItemRow(false));
-    refreshItemSelects();
-    if (itemRowsContainer.querySelectorAll('.item-row').length >= MAX_ITEM_ROWS) {
-      addItemRowBtn.disabled = true;
-    }
-  });
-
-  itemRowsContainer.querySelector('select').addEventListener('change', refreshItemSelects);
-
+  // Prefill handling (e.g. after successful log entry submission)
   const urlParams = new URLSearchParams(window.location.search);
   const prefillId = urlParams.get('prefill_employee_id');
   const prefillName = urlParams.get('emp');  // server sends ?emp=<name> after log submit

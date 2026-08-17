@@ -159,3 +159,52 @@ class BulkPeriodicAllocateTests(BaseTestCase):
         # Verify supervisor log page renders button disabled with cooldown notice
         log_page_resp = self.client.get(reverse("supervisor_log"))
         self.assertContains(log_page_resp, "Bulk Allotment Cooldown Active")
+
+
+class LogGridSelectorTests(BaseTestCase):
+    def test_log_page_renders_grid_container_and_preserved_comments(self):
+        self.login_supervisor()
+        response = self.client.get(reverse("supervisor_log"))
+        self.assertEqual(response.status_code, 200)
+        # Verify grid container and toolbar exist
+        self.assertContains(response, 'id="item-grid-container"')
+        self.assertContains(response, 'id="item-grid"')
+        self.assertContains(response, 'id="item-filter-input"')
+        self.assertContains(response, 'id="selection-count-badge"')
+        # Verify preserved dropdown implementation is commented out
+        self.assertContains(response, "PRESERVED DROPDOWN IMPLEMENTATION")
+        self.assertContains(response, "PRESERVED DROPDOWN JAVASCRIPT LOGIC")
+
+    def test_item_options_includes_stock_and_colors(self):
+        self.login_supervisor()
+        response = self.client.get(reverse("supervisor_log_item_options"), {"employee_id": self.emp1.pk})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("colors", data)
+        self.assertIn("today", data["colors"])
+        self.assertIn("period", data["colors"])
+        items = data["results"]
+        self.assertTrue(len(items) > 0)
+        first_item = items[0]
+        self.assertIn("id", first_item)
+        self.assertIn("name", first_item)
+        self.assertIn("status", first_item)
+        self.assertIn("stock", first_item)
+
+    def test_multiple_item_grid_submission(self):
+        self.login_supervisor()
+        response = self.client.post(
+            reverse("supervisor_log_submit"),
+            {
+                "employee_id": self.emp1.pk,
+                "item": [self.goggles.pk, self.earplugs.pk, self.gloves.pk],
+            },
+        )
+        self.assertEqual(UsageLog.objects.filter(employee=self.emp1).count(), 3)
+        self.goggles.refresh_from_db()
+        self.earplugs.refresh_from_db()
+        self.gloves.refresh_from_db()
+        self.assertEqual(self.goggles.current_stock, 49)
+        self.assertEqual(self.earplugs.current_stock, 199)
+        self.assertEqual(self.gloves.current_stock, 29)
+

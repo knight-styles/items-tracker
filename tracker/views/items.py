@@ -39,7 +39,7 @@ def admin_items(request):
 @admin_required
 def admin_item_add(request):
     if request.method == "POST":
-        form = ItemForm(request.POST)
+        form = ItemForm(request.POST, request.FILES)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.created_by = request.user
@@ -60,7 +60,7 @@ def admin_item_add(request):
 def admin_item_edit(request, pk):
     item = get_object_or_404(Item, pk=pk)
     if request.method == "POST":
-        form = ItemForm(request.POST, instance=item)
+        form = ItemForm(request.POST, request.FILES, instance=item)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.updated_by = request.user

@@ -24,7 +24,7 @@
             <th>Status</th>
             <th>Created By</th>
             <th>Date Joined</th>
-            <th style="text-align:right;">Actions</th>
+            <th style="text-align:right;" class="no-sort" data-sort="disabled">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +40,7 @@
               {% endif %}
             </td>
             <td><span class="badge badge-role">{{ u.created_by.username|default:"—" }}</span></td>
-            <td class="text-muted" style="font-size:13px;">{{ u.date_joined|date:"d M Y, H:i" }}</td>
+            <td data-sort-value="{{ u.date_joined|date:'c' }}" class="text-muted" style="font-size:13px;">{{ u.date_joined|date:"d M Y, H:i" }}</td>
             <td style="text-align:right; white-space:nowrap;">
               <div style="display:inline-flex; gap:6px;">
                 <a href="{% url 'admin_user_edit' u.pk %}" class="btn btn-sm">Edit</a>

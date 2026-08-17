@@ -95,4 +95,59 @@ class ItemCRUDTests(BaseTestCase):
         self.settings.save()
         self.login_admin()
         response = self.client.get(reverse("admin_items"))
-        self.assertContains(response, "(low)")  # goggles(50), gloves(30) both below 100
+        self.assertContains(response, "Low Stock")  # goggles(50), gloves(30) both below 100
+
+    def test_admin_can_add_item_with_image(self):
+        import io
+        from PIL import Image as PILImage
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        file_obj = io.BytesIO()
+        img = PILImage.new("RGB", (50, 50), color="blue")
+        img.save(file_obj, format="JPEG")
+        file_obj.seek(0)
+        uploaded_image = SimpleUploadedFile("shield.jpg", file_obj.read(), content_type="image/jpeg")
+
+        self.login_admin()
+        response = self.client.post(
+            reverse("admin_item_add"),
+            {
+                "name": "Welding Shield",
+                "current_stock": 15,
+                "image": uploaded_image,
+                "is_active": "on",
+            },
+        )
+        self.assertRedirects(response, reverse("admin_items"))
+        item = Item.objects.filter(name="Welding Shield").first()
+        self.assertIsNotNone(item)
+        self.assertTrue(bool(item.image))
+        self.assertTrue(item.image.name.startswith("item_images/"))
+        self.assertIn("/media/item_images/", item.get_image_url())
+
+    def test_admin_can_edit_item_image(self):
+        import io
+        from PIL import Image as PILImage
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        file_obj = io.BytesIO()
+        img = PILImage.new("RGB", (50, 50), color="green")
+        img.save(file_obj, format="JPEG")
+        file_obj.seek(0)
+        uploaded_image = SimpleUploadedFile("new_goggles.jpg", file_obj.read(), content_type="image/jpeg")
+
+        self.login_admin()
+        response = self.client.post(
+            reverse("admin_item_edit", args=[self.goggles.pk]),
+            {
+                "name": self.goggles.name,
+                "current_stock": self.goggles.current_stock,
+                "image": uploaded_image,
+                "is_active": "on",
+            },
+        )
+        self.assertRedirects(response, reverse("admin_items"))
+        self.goggles.refresh_from_db()
+        self.assertTrue(bool(self.goggles.image))
+        self.assertIn("/media/item_images/", self.goggles.get_image_url())
+

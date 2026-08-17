@@ -165,7 +165,7 @@
           <tbody>
             {% for su in results %}
             <tr>
-              <td class="font-semibold">{{ su.updated_at|date:"d M Y, H:i" }}</td>
+              <td data-sort-value="{{ su.updated_at|date:'c' }}" class="font-semibold">{{ su.updated_at|date:"d M Y, H:i" }}</td>
               <td><span class="badge badge-neutral">{{ su.item.name }}</span></td>
               <td class="font-bold" style="color:var(--color-success-hover);">+{{ su.quantity_added }}</td>
               <td><span class="badge badge-role">{{ su.updated_by.username|default:"—" }}</span></td>
@@ -208,7 +208,7 @@
           <tbody>
             {% for log in results %}
             <tr>
-              <td class="font-semibold">{{ log.logged_at|date:"d M Y, H:i" }}</td>
+              <td data-sort-value="{{ log.logged_at|date:'c' }}" class="font-semibold">{{ log.logged_at|date:"d M Y, H:i" }}</td>
               <td class="font-semibold">{{ log.employee.name }}</td>
               <td class="text-muted">{{ log.employee.code }}</td>
               <td><span class="badge badge-neutral">{{ log.item.name }}</span></td>

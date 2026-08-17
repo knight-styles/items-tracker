@@ -46,7 +46,7 @@
             <th>Employee Code</th>
             <th>Status</th>
             <th>Last Updated</th>
-            <th style="text-align:right;">Actions</th>
+            <th style="text-align:right;" class="no-sort" data-sort="disabled">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -61,7 +61,7 @@
                 <span class="badge badge-danger">Inactive</span>
               {% endif %}
             </td>
-            <td>
+            <td data-sort-value="{{ emp.updated_at|date:'c' }}">
               <span class="text-muted" style="font-size:13px;">
                 {% if emp.updated_by %}{{ emp.updated_by.username }}{% else %}{{ emp.created_by.username|default:"—" }}{% endif %}
                 on {{ emp.updated_at|date:"d M Y, H:i" }}

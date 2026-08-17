@@ -25,9 +25,10 @@ class EmployeeSearchForm(forms.Form):
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ["name", "current_stock", "is_active"]
+        fields = ["name", "current_stock", "image", "is_active"]
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "e.g. Safety Goggles"}),
+            "image": forms.FileInput(attrs={"accept": "image/*"}),
         }
 
 

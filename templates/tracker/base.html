@@ -219,18 +219,19 @@
             const cellB = rowB.children[colIndex];
             if (!cellA || !cellB) return 0;
 
-            let valA = (cellA.getAttribute('data-sort-value') || cellA.textContent).trim();
-            let valB = (cellB.getAttribute('data-sort-value') || cellB.textContent).trim();
+            let rawA = cellA.getAttribute('data-sort-value');
+            let rawB = cellB.getAttribute('data-sort-value');
 
-            const cleanNumA = valA.replace(/[^0-9.-]+/g, "");
-            const cleanNumB = valB.replace(/[^0-9.-]+/g, "");
+            let valA = (rawA !== null ? rawA : cellA.textContent).trim();
+            let valB = (rawB !== null ? rawB : cellB.textContent).trim();
 
-            const isNumA = cleanNumA !== "" && !isNaN(cleanNumA);
-            const isNumB = cleanNumB !== "" && !isNaN(cleanNumB);
+            const numPattern = /^[$₹€+]?\s*-?\d+(\.\d+)?%?$/;
+            const isPureNumA = numPattern.test(valA);
+            const isPureNumB = numPattern.test(valB);
 
-            if (isNumA && isNumB) {
-              const numA = parseFloat(cleanNumA);
-              const numB = parseFloat(cleanNumB);
+            if (isPureNumA && isPureNumB) {
+              const numA = parseFloat(valA.replace(/[^0-9.-]+/g, ""));
+              const numB = parseFloat(valB.replace(/[^0-9.-]+/g, ""));
               return newDir === 'asc' ? numA - numB : numB - numA;
             }
 

@@ -41,6 +41,13 @@
         {% endif %}
       </div>
 
+      <div class="form-group" style="margin-top:16px; display:flex; align-items:center; gap:8px;">
+        {{ form.update_existing }}
+        <label for="{{ form.update_existing.id_for_label }}" style="margin-bottom:0; cursor:pointer; font-size:14px;">
+          {{ form.update_existing.label }}
+        </label>
+      </div>
+
       <div style="display:flex; gap:10px; margin-top:24px;">
         <button type="submit" class="btn btn-primary">
           <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>

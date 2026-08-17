@@ -45,7 +45,7 @@
         <tbody>
           {% for entry in results %}
           <tr>
-            <td class="font-semibold">{{ entry.created_at|date:"d M Y, H:i" }}</td>
+            <td data-sort-value="{{ entry.created_at|date:'c' }}" class="font-semibold">{{ entry.created_at|date:"d M Y, H:i" }}</td>
             <td><span class="badge badge-role">{{ entry.actor.username|default:"—" }}</span></td>
             <td>
               {% if 'delete' in entry.action|lower or 'deactivate' in entry.action|lower %}

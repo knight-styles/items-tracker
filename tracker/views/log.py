@@ -49,6 +49,27 @@ def supervisor_log_employee_search(request):
     })
 
 
+ITEM_IMAGE_MAP = {
+    "helmet": "/static/images/items/helmet.jpg",
+    "hard hat": "/static/images/items/helmet.jpg",
+    "goggle": "/static/images/items/goggles.jpg",
+    "glass": "/static/images/items/goggles.jpg",
+    "glove": "/static/images/items/gloves.jpg",
+    "vest": "/static/images/items/vest.jpg",
+    "jacket": "/static/images/items/vest.jpg",
+    "boot": "/static/images/items/boots.jpg",
+    "shoe": "/static/images/items/boots.jpg",
+}
+
+
+def get_item_image_url(name):
+    name_lower = (name or "").lower()
+    for key, url in ITEM_IMAGE_MAP.items():
+        if key in name_lower:
+            return url
+    return ""
+
+
 @supervisor_required
 def supervisor_log_item_options(request):
     employee_id = request.GET.get("employee_id", "")
@@ -79,7 +100,13 @@ def supervisor_log_item_options(request):
     for item in active_items:
         last_log_at = last_log_map.get(item.pk)
         status = compute_item_status(last_log_at, app_settings, now=now)
-        results.append({"id": item.pk, "name": item.name, "status": status})
+        results.append({
+            "id": item.pk,
+            "name": item.name,
+            "status": status,
+            "stock": item.current_stock,
+            "image_url": item.get_image_url(),
+        })
 
     return JsonResponse({
         "results": results,

@@ -38,21 +38,31 @@
       <table>
         <thead>
           <tr>
+            <th style="width: 50px;">Image</th>
             <th>Item Name</th>
             <th>Current Stock</th>
             <th>Status</th>
             <th>Last Updated</th>
-            <th style="text-align:right;">Actions</th>
+            <th style="text-align:right;" class="no-sort" data-sort="disabled">Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for item in items %}
           <tr {% if item.current_stock <= low_stock_threshold %}style="background: var(--color-danger-light);"{% endif %}>
+            <td style="padding:8px 12px;">
+              <div style="width:40px; height:40px; border-radius:var(--radius-sm); background:var(--color-surface-hover); border:1px solid var(--color-border); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                {% if item.get_image_url %}
+                  <img src="{{ item.get_image_url }}" alt="{{ item.name }}" style="width:100%; height:100%; object-fit:contain; padding:2px;">
+                {% else %}
+                  <svg style="width:20px; height:20px; color:var(--color-text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                {% endif %}
+              </div>
+            </td>
             <td class="font-bold">{{ item.name }}</td>
             <td>
               <span class="font-bold" style="font-size:15px;">{{ item.current_stock }}</span>
               {% if item.current_stock <= low_stock_threshold %}
-                <span class="badge badge-danger" style="margin-left:6px;">Low Stock (low)</span>
+                <span class="badge badge-danger" style="margin-left:6px;">Low Stock (&le; {{ low_stock_threshold }})</span>
               {% endif %}
             </td>
             <td>
@@ -62,7 +72,7 @@
                 <span class="badge badge-danger">Inactive</span>
               {% endif %}
             </td>
-            <td>
+            <td data-sort-value="{{ item.updated_at|date:'c' }}">
               <span class="text-muted" style="font-size:13px;">
                 {% if item.updated_by %}{{ item.updated_by.username }}{% else %}{{ item.created_by.username|default:"—" }}{% endif %}
                 on {{ item.updated_at|date:"d M Y, H:i" }}
@@ -83,7 +93,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="5" class="text-muted" style="text-align:center; padding:32px;">No items match the specified criteria.</td></tr>
+          <tr><td colspan="6" class="text-muted" style="text-align:center; padding:32px;">No items match the specified criteria.</td></tr>
           {% endfor %}
         </tbody>
       </table>
