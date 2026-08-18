@@ -7,7 +7,7 @@
     --color-today-bg: {{ app_settings.color_today|default:"#dc2626" }};
     --color-period-bg: {{ app_settings.color_period|default:"#2563eb" }};
   }
-  .search-wrapper { position: relative; max-width: 480px; }
+  .search-wrapper { position: relative; max-width: 480px; z-index: 60; }
   .search-results {
     position: absolute;
     top: calc(100% + 4px);
@@ -16,11 +16,11 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    max-height: 240px;
+    max-height: 280px;
     overflow-y: auto;
-    z-index: 50;
+    z-index: 100;
     display: none;
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.15);
   }
   .search-results div {
     padding: 10px 14px;
@@ -484,7 +484,7 @@
   }
   </style>
 
-  <div class="card" style="margin-bottom:24px;">
+  <div class="card" style="margin-bottom:24px; position:relative; z-index:30; overflow:visible;">
     <div class="card-header" style="margin-bottom: 16px; padding-bottom: 8px;">
       <h2 class="card-title">
         <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -520,7 +520,7 @@
     {% csrf_token %}
     <input type="hidden" name="employee_id" id="employee_id_input">
 
-    <div class="card disabled" id="items-card" style="margin-bottom:24px;">
+    <div class="card disabled" id="items-card" style="margin-bottom:24px; position:relative; z-index:10;">
       <div class="card-header" style="margin-bottom: 16px; padding-bottom: 12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--color-border);">
         <h2 class="card-title" style="margin:0;">
           <svg style="width:20px; height:20px; color:var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>

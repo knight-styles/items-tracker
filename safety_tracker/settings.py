@@ -38,7 +38,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", _INSECURE_DEV_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Set DJANGO_DEBUG=False in production.
-DEBUG = _env_bool("DJANGO_DEBUG", False)
+DEBUG = _env_bool("DJANGO_DEBUG", True)
 
 # Log security warning if SECRET_KEY is still the insecure dev fallback with DEBUG=False.
 if not DEBUG and not _is_testing and SECRET_KEY == _INSECURE_DEV_KEY:
@@ -49,9 +49,12 @@ if not DEBUG and not _is_testing and SECRET_KEY == _INSECURE_DEV_KEY:
 
 # Comma-separated list, e.g. DJANGO_ALLOWED_HOSTS=yourapp.pythonanywhere.com
 _allowed_hosts_env = os.environ.get("DJANGO_ALLOWED_HOSTS", "")
-ALLOWED_HOSTS = ['safetytracker.pythonanywhere.com', 'localhost', '127.0.0.1', 'testserver'] + [
-    h.strip() for h in _allowed_hosts_env.split(",") if h.strip()
-]
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = ['safetytracker.pythonanywhere.com', 'localhost', '127.0.0.1', 'testserver'] + [
+        h.strip() for h in _allowed_hosts_env.split(",") if h.strip()
+    ]
 
 
 # Application definition

@@ -786,7 +786,6 @@ textarea:focus {
   margin-bottom: 20px;
   max-width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden;
 }
 
 .card-grid {
